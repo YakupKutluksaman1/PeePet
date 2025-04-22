@@ -1,0 +1,80 @@
+{
+    "rules": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "users": {
+            ".read": true,
+            "$userId": {
+                ".write": "auth != null && auth.uid === $userId"
+            }
+        },
+        "businesses": {
+            ".read": true,
+            "$businessId": {
+                ".read": true,
+                "profile": {
+                    ".read": true,
+                    ".write": "auth != null && auth.uid === $businessId"
+                },
+                "services": {
+                    ".read": true,
+                    ".write": "auth != null && auth.uid === $businessId"
+                },
+                "listings": {
+                    ".read": true,
+                    ".write": "auth != null && auth.uid === $businessId"
+                },
+                "stats": {
+                    ".read": "auth != null && auth.uid === $businessId",
+                    ".write": "auth != null && auth.uid === $businessId"
+                }
+            }
+        },
+        "listings": {
+            ".read": true,
+            ".write": "auth != null",
+            "$listingId": {
+                ".read": true,
+                ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+            }
+        },
+        "business_listings": {
+            ".read": true,
+            "$listingId": {
+                ".write": "auth != null && (!data.exists() || data.child('businessId').val() === auth.uid)"
+            }
+        },
+        "pets": {
+            ".read": true,
+            "$userId": {
+                ".write": "auth != null && auth.uid === $userId"
+            }
+        },
+        "conversations": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "$conversationId": {
+                ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+                ".write": "auth != null && (!data.exists() || data.child('participants').child(auth.uid).exists())"
+            }
+        },
+        "messages": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "$conversationId": {
+                ".read": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()",
+                ".write": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()",
+                "$messageId": {
+                    ".read": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()",
+                    ".write": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()"
+                }
+            }
+        },
+        "userLocations": {
+            ".read": true,
+            "$userId": {
+                ".write": "auth != null && auth.uid === $userId"
+            }
+        }
+    }
+}

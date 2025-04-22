@@ -1,0 +1,20 @@
+{
+    "rules": {
+        "pets": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "$petId": {
+                ".read": "auth != null",
+                ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+            }
+        },
+        "matches": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "$matchId": {
+                ".read": "auth != null",
+                ".write": "auth != null && (!data.exists() || root.child('pets').child(data.child('petId').val()).child('userId').val() === auth.uid)"
+            }
+        }
+    }
+}
