@@ -14,7 +14,7 @@ export default function ListingDetailPage() {
     const { id } = useParams();
     const { listings, deleteListing } = useListing();
     const { user } = useAuth();
-    const { createMessage, conversations } = useMessage();
+    const { createMessage, conversations, acceptMessage, rejectMessage } = useMessage();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
