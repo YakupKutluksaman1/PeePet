@@ -8,6 +8,10 @@ export const CreateListingForm = () => {
         title: '',
         description: '',
         petType: 'dog' as const,
+        petName: '',
+        petAge: '',
+        petGender: 'male' as const,
+        breed: '',
         city: '',
         district: '',
         phone: '',
@@ -29,8 +33,7 @@ export const CreateListingForm = () => {
         }
     };
 
-    const selectedCity = cities.find(city => city.name === formData.city);
-    const districts = selectedCity?.districts || [];
+    const districts: string[] = [];
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -78,6 +81,64 @@ export const CreateListingForm = () => {
                     <option value="bird">Kuş</option>
                     <option value="other">Diğer</option>
                 </select>
+            </div>
+
+            <div>
+                <label htmlFor="petName" className="block text-sm font-medium text-gray-700">
+                    Hayvan İsmi
+                </label>
+                <input
+                    type="text"
+                    id="petName"
+                    value={formData.petName}
+                    onChange={(e) => setFormData({ ...formData, petName: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                />
+            </div>
+
+            <div>
+                <label htmlFor="petAge" className="block text-sm font-medium text-gray-700">
+                    Hayvan Yaşı
+                </label>
+                <input
+                    type="text"
+                    id="petAge"
+                    value={formData.petAge}
+                    onChange={(e) => setFormData({ ...formData, petAge: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                />
+            </div>
+
+            <div>
+                <label htmlFor="petGender" className="block text-sm font-medium text-gray-700">
+                    Hayvan Cinsiyeti
+                </label>
+                <select
+                    id="petGender"
+                    value={formData.petGender}
+                    onChange={(e) => setFormData({ ...formData, petGender: e.target.value as any })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                >
+                    <option value="male">Erkek</option>
+                    <option value="female">Dişi</option>
+                </select>
+            </div>
+
+            <div>
+                <label htmlFor="breed" className="block text-sm font-medium text-gray-700">
+                    Irk
+                </label>
+                <input
+                    type="text"
+                    id="breed"
+                    value={formData.breed}
+                    onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                />
             </div>
 
             <div>
