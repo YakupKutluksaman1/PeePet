@@ -55,7 +55,7 @@ const MatchPage = () => {
 
     const [activeFilters, setActiveFilters] = useState({
         distance: 10, // km cinsinden varsayılan değer
-        petTypes: ['dog', 'cat', 'bird', 'rabbit', 'other'], // varsayılan hayvan türleri
+        petTypes: ['dog', 'cat', 'rabbit', 'bird', 'hamster', 'guinea-pig', 'ferret', 'turtle', 'fish', 'snake', 'lizard', 'hedgehog', 'exotic', 'other'], // varsayılan hayvan türleri
         ageRange: [0, 20], // yaş aralığı
         gender: 'all' // cinsiyet filtresi
     });
@@ -269,7 +269,7 @@ const MatchPage = () => {
     const resetFilters = async () => {
         setActiveFilters({
             distance: 10,
-            petTypes: ['dog', 'cat', 'bird', 'rabbit', 'other'],
+            petTypes: ['dog', 'cat', 'rabbit', 'bird', 'hamster', 'guinea-pig', 'ferret', 'turtle', 'fish', 'snake', 'lizard', 'hedgehog', 'exotic', 'other'],
             ageRange: [0, 20],
             gender: 'all'
         });

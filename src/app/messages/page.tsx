@@ -163,6 +163,15 @@ export default function MessagesPage() {
             case 'cat': return 'Kedi';
             case 'rabbit': return 'Tavşan';
             case 'bird': return 'Kuş';
+            case 'hamster': return 'Hamster';
+            case 'guinea-pig': return 'Guinea Pig';
+            case 'ferret': return 'Gelincik';
+            case 'turtle': return 'Kaplumbağa';
+            case 'fish': return 'Balık';
+            case 'snake': return 'Yılan';
+            case 'lizard': return 'Kertenkele';
+            case 'hedgehog': return 'Kirpi';
+            case 'exotic': return 'Egzotik Hayvan';
             default: return 'Diğer';
         }
     };

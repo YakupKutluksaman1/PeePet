@@ -1,11 +1,13 @@
 {
     "rules": {
-        ".read": "auth != null",
-        ".write": "auth != null",
+        ".read": false,
+        ".write": false,
         "users": {
-            ".read": true,
+            ".read": "auth != null",
             "$userId": {
-                ".write": "auth != null && auth.uid === $userId"
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === $userId",
+                ".validate": "newData.hasChildren(['firstName', 'lastName', 'email'])"
             }
         },
         "businesses": {
@@ -35,7 +37,7 @@
             ".write": "auth != null",
             "$listingId": {
                 ".read": true,
-                ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+                ".write": "auth != null && (!data.exists() || data.child('ownerId').val() === auth.uid)"
             }
         },
         "business_listings": {
@@ -45,8 +47,9 @@
             }
         },
         "pets": {
-            ".read": true,
+            ".read": "auth != null",
             "$userId": {
+                ".read": "auth != null",
                 ".write": "auth != null && auth.uid === $userId"
             }
         },
@@ -71,9 +74,24 @@
             }
         },
         "userLocations": {
-            ".read": true,
+            ".read": "auth != null",
             "$userId": {
+                ".read": "auth != null",
                 ".write": "auth != null && auth.uid === $userId"
+            }
+        },
+        "vetRecords": {
+            ".read": "auth != null",
+            "$recordId": {
+                ".read": "auth != null && data.child('userId').val() === auth.uid",
+                ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+            }
+        },
+        "matches": {
+            ".read": "auth != null",
+            "$matchId": {
+                ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
+                ".write": "auth != null && ((!data.exists()) || data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)"
             }
         }
     }

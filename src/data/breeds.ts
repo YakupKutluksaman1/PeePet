@@ -66,5 +66,54 @@ export const breeds = {
         'Budgerigar English', 'Budgerigar Exhibition', 'Canary Roller',
         'Canary Spanish Timbrado', 'Canary American Singer', 'Diamond Dove',
         'Java Sparrow', 'Society Finch', 'Star Finch'
+    ],
+    hamster: [
+        'Suriye Hamsteri', 'Roborovski Cüce Hamsteri', 'Kış Beyazı Cüce Hamsteri',
+        'Campbell Cüce Hamsteri', 'Çin Hamsteri', 'Teddy Bear Hamster',
+        'Russian Campbell', 'Chinese Dwarf', 'Fancy Hamster'
+    ],
+    'guinea-pig': [
+        'Amerikan Guinea Pig', 'Habeş Guinea Pig', 'Peru Guinea Pig',
+        'Silkie Guinea Pig', 'Teddy Guinea Pig', 'Himalayan Guinea Pig',
+        'Sheltie Guinea Pig', 'Texel Guinea Pig', 'Rex Guinea Pig',
+        'Amerikan Crested', 'İngiliz Crested', 'Coronet', 'Merino',
+        'Baldwin', 'Skinny Pig'
+    ],
+    ferret: [
+        'Standart Gelincik', 'Ankara Gelinciği', 'Albino Ferret',
+        'Black Sable Ferret', 'Chocolate Ferret', 'Cinnamon Ferret',
+        'Dark-Eyed White Ferret', 'Panda Ferret', 'Sable Ferret'
+    ],
+    turtle: [
+        'Kırmızı Yanaklı Su Kaplumbağası', 'Kutu Kaplumbağası', 'Boyalı Kaplumbağa',
+        'Harita Kaplumbağası', 'Yunan Kara Kaplumbağası', 'Mississippi Map Turtle',
+        'Eastern Box Turtle', 'Yellow-Bellied Slider', 'African Sideneck Turtle',
+        'Common Musk Turtle', 'Diamondback Terrapin', 'Russian Tortoise'
+    ],
+    fish: [
+        'Beta Balığı', 'Japon Balığı', 'Lepistes', 'Tetra', 'Melek Balığı',
+        'Oscar Balığı', 'Diskus Balığı', 'Koi Balığı', 'Moli', 'Cory Kedi Balığı',
+        'Platy', 'Zebra Danio', 'Barb', 'Gurami', 'Çöpçü Balığı',
+        'Gökkuşağı Balığı', 'Killifish', 'Chichlid', 'Rasbora'
+    ],
+    snake: [
+        'Mısır Yılanı', 'Toparlak Piton', 'Kral Yılanı', 'Süt Yılanı',
+        'Garter Yılanı', 'Boa Constrictor', 'Yeşil Ağaç Pitonu',
+        'Kırmızı Kuyruklu Boa', 'Kaliforniya Kral Yılanı', 'Rosy Boa',
+        'Western Hognose', 'Amazon Tree Boa'
+    ],
+    lizard: [
+        'Sakallı Ejder', 'Leopar Gecko', 'Tepelikli Gecko',
+        'Mavi Dilli Skink', 'Bukalemun', 'Iguana', 'Savannah Monitor',
+        'Uromastyx', 'Tegu', 'Anole', 'Sudan Plated Lizard'
+    ],
+    hedgehog: [
+        'Afrika Cüce Kirpisi', 'Avrupa Kirpisi', 'Uzun Kulaklı Kirpi',
+        'Hint Kirpisi', 'Mısır Uzun Kulaklı Kirpisi'
+    ],
+    exotic: [
+        'Şeker Uçuşkanı', 'Çinçilla', 'Aksolotl', 'Tarantula', 'Sakallı Ejder',
+        'Degu', 'Sıçrayan Fare', 'Oklu Kurbağa', 'Minipig', 'Kinkajou',
+        'Serval', 'Ateş Semenderi', 'Egzotik Böcekler'
     ]
 }; 

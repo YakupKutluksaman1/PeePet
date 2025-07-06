@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
@@ -269,14 +270,30 @@ export default function BusinessPage() {
 
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-8 w-full max-w-2xl relative z-10 shadow-xl border border-gray-100">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-3">
-                        <span className="text-4xl">{isLogin ? '🔑' : '📋'}</span>
+                    {/* Logo Alanı */}
+                    <div className="mx-auto w-32 h-32 flex items-center justify-center mb-6">
+                        <Image src="/peepet.png" alt="PeePet Logo" width={120} height={120} className="rounded-full object-cover" />
+                    </div>
+
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
                         {isLogin ? 'İşletme Girişi' : 'İşletme Kaydı'}
-                        <span className="text-4xl">{isLogin ? '🏪' : '🐾'}</span>
                     </h2>
                     <p className="text-gray-600">
                         {isLogin ? 'İşletme yönetim paneline erişin' : 'İşletmenizi platformumuza ekleyin'}
                     </p>
+                </div>
+
+                {/* Uyarı Mesajı */}
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                        <span className="text-amber-500 text-xl">⚠️</span>
+                        <div>
+                            <p className="text-amber-800 font-medium text-sm leading-relaxed">
+                                <strong>Önemli Uyarı:</strong> Hayvanların satışı, ticareti ve pazarlaması yasaktır.
+                                İşletmeniz sadece hizmet sağlayıcı olarak kayıt olabilir.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {error && (

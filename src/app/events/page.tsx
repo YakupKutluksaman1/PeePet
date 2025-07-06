@@ -75,6 +75,9 @@ type CategoryType = 'all' | 'veterinary' | 'petshop' | 'grooming' | 'boarding' |
 
 type ListingCategoryType = 'all' | 'health' | 'grooming' | 'food' | 'boarding' | 'training' | 'other';
 
+// Sayfa başına gösterilecek öğe sayısı
+const ITEMS_PER_PAGE = 9;
+
 export default function EventsPage() {
     const router = useRouter();
     const { businessListings, loading } = useBusinessListing();
@@ -85,6 +88,10 @@ export default function EventsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [businesses, setBusinesses] = useState<Business[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Sayfalama için state'ler
+    const [currentBusinessPage, setCurrentBusinessPage] = useState(1);
+    const [currentListingPage, setCurrentListingPage] = useState(1);
 
     // Firebase'den işletme verilerini çek
     useEffect(() => {
@@ -129,6 +136,15 @@ export default function EventsPage() {
         return () => unsubscribe();
     }, []);
 
+    // Filtre değiştiğinde sayfa numarasını sıfırla
+    useEffect(() => {
+        setCurrentBusinessPage(1);
+    }, [selectedCategory, selectedCity, searchTerm]);
+
+    useEffect(() => {
+        setCurrentListingPage(1);
+    }, [selectedListingCategory, searchTerm]);
+
     // Filtreler uygula
     const filteredBusinesses = businesses.filter(business => {
         // Kategori filtresi
@@ -153,6 +169,21 @@ export default function EventsPage() {
             listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
         return categoryMatch && searchMatch;
     });
+
+    // Sayfalama hesaplamaları
+    const businessPageCount = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
+    const listingPageCount = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
+
+    // Sayfalanmış veriler
+    const paginatedBusinesses = filteredBusinesses.slice(
+        (currentBusinessPage - 1) * ITEMS_PER_PAGE,
+        currentBusinessPage * ITEMS_PER_PAGE
+    );
+
+    const paginatedListings = filteredListings.slice(
+        (currentListingPage - 1) * ITEMS_PER_PAGE,
+        currentListingPage * ITEMS_PER_PAGE
+    );
 
     // Kategori emojileri
     const getCategoryEmoji = (category: CategoryType): string => {
@@ -185,6 +216,99 @@ export default function EventsPage() {
             all: '📋'
         };
         return emojis[category] || '📋';
+    };
+
+    // Sayfalama bileşeni
+    const Pagination = ({
+        currentPage,
+        totalPages,
+        onPageChange
+    }: {
+        currentPage: number;
+        totalPages: number;
+        onPageChange: (page: number) => void
+    }) => {
+        if (totalPages <= 1) return null;
+
+        return (
+            <div className="flex justify-center mt-8 space-x-2">
+                <button
+                    onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 rounded-md ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                        }`}
+                >
+                    &laquo; Önceki
+                </button>
+
+                {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
+                    // Sayfa numaralarını hesapla
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                        pageNumber = index + 1;
+                    } else if (currentPage <= 3) {
+                        pageNumber = index + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                        pageNumber = totalPages - 4 + index;
+                    } else {
+                        pageNumber = currentPage - 2 + index;
+                    }
+
+                    // İlk ve son sayfa numaralarını da göster
+                    if (totalPages > 5) {
+                        if (index === 0 && pageNumber > 1) {
+                            return (
+                                <button
+                                    key={`first-page`}
+                                    onClick={() => onPageChange(1)}
+                                    className={`px-3 py-1 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200`}
+                                >
+                                    1
+                                </button>
+                            );
+                        }
+
+                        if (index === 4 && pageNumber < totalPages) {
+                            return (
+                                <button
+                                    key={`last-page`}
+                                    onClick={() => onPageChange(totalPages)}
+                                    className={`px-3 py-1 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200`}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+                    }
+
+                    return (
+                        <button
+                            key={pageNumber}
+                            onClick={() => onPageChange(pageNumber)}
+                            className={`px-3 py-1 rounded-md ${currentPage === pageNumber
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                                }`}
+                        >
+                            {pageNumber}
+                        </button>
+                    );
+                })}
+
+                <button
+                    onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-1 rounded-md ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                        }`}
+                >
+                    Sonraki &raquo;
+                </button>
+            </div>
+        );
     };
 
     return (
@@ -309,11 +433,23 @@ export default function EventsPage() {
                             <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-indigo-500"></div>
                         </div>
                     ) : filteredBusinesses.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredBusinesses.map((business) => (
-                                <BusinessCard key={business.id} business={business} />
-                            ))}
-                        </div>
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {paginatedBusinesses.map((business) => (
+                                    <BusinessCard key={business.id} business={business} />
+                                ))}
+                            </div>
+
+                            <Pagination
+                                currentPage={currentBusinessPage}
+                                totalPages={businessPageCount}
+                                onPageChange={setCurrentBusinessPage}
+                            />
+
+                            <div className="text-center mt-4 text-sm text-gray-600">
+                                <p>{filteredBusinesses.length} işletme içinden {(currentBusinessPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentBusinessPage * ITEMS_PER_PAGE, filteredBusinesses.length)} arası gösteriliyor</p>
+                            </div>
+                        </>
                     ) : (
                         <div className="bg-white rounded-xl shadow-lg p-10 text-center border border-gray-200">
                             <div className="text-6xl mb-4">🔍</div>
@@ -337,63 +473,75 @@ export default function EventsPage() {
                             <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-indigo-500"></div>
                         </div>
                     ) : filteredListings.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredListings.map((listing) => (
-                                <div
-                                    key={listing.id}
-                                    className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 border border-gray-200"
-                                >
-                                    <div className="h-48 bg-gradient-to-br from-indigo-200 to-purple-300 relative">
-                                        {listing.images?.image1 ? (
-                                            <img
-                                                src={listing.images.image1}
-                                                alt={listing.title}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <span className="text-6xl transform hover:scale-110 transition-transform duration-300">
-                                                    {getListingCategoryEmoji(listing.category?.toLowerCase() as ListingCategoryType)}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-5">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <h3 className="text-lg font-bold text-gray-900 mb-1">{listing.title}</h3>
-                                                <p className="text-sm text-indigo-700 font-medium">{listing.businessName}</p>
-                                            </div>
-                                            {listing.price && (
-                                                <div className="flex items-center bg-green-200 px-3 py-1 rounded-full">
-                                                    <span className="text-sm font-medium text-gray-800">{listing.price} TL</span>
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {paginatedListings.map((listing) => (
+                                    <div
+                                        key={listing.id}
+                                        className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 border border-gray-200"
+                                    >
+                                        <div className="h-48 bg-gradient-to-br from-indigo-200 to-purple-300 relative">
+                                            {listing.images?.image1 ? (
+                                                <img
+                                                    src={listing.images.image1}
+                                                    alt={listing.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-6xl transform hover:scale-110 transition-transform duration-300">
+                                                        {getListingCategoryEmoji(listing.category?.toLowerCase() as ListingCategoryType)}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
-
-                                        <div className="mb-4">
-                                            <p className="text-sm text-gray-700 line-clamp-2">{listing.description}</p>
-                                        </div>
-
-                                        <div className="space-y-2 text-sm text-gray-600 mb-5">
-                                            <div className="flex items-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                <span>{new Date(listing.createdAt).toLocaleDateString('tr-TR')}</span>
+                                        <div className="p-5">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-gray-900 mb-1">{listing.title}</h3>
+                                                    <p className="text-sm text-indigo-700 font-medium">{listing.businessName}</p>
+                                                </div>
+                                                {listing.price && (
+                                                    <div className="flex items-center bg-green-200 px-3 py-1 rounded-full">
+                                                        <span className="text-sm font-medium text-gray-800">{listing.price} TL</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
 
-                                        <button
-                                            onClick={() => router.push(`/public-listings/${listing.id}`)}
-                                            className="w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 shadow-md hover:shadow-lg"
-                                        >
-                                            İlanı İncele
-                                        </button>
+                                            <div className="mb-4">
+                                                <p className="text-sm text-gray-700 line-clamp-2">{listing.description}</p>
+                                            </div>
+
+                                            <div className="space-y-2 text-sm text-gray-600 mb-5">
+                                                <div className="flex items-start">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <span>{new Date(listing.createdAt).toLocaleDateString('tr-TR')}</span>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => router.push(`/public-listings/${listing.id}`)}
+                                                className="w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 shadow-md hover:shadow-lg"
+                                            >
+                                                İlanı İncele
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+
+                            <Pagination
+                                currentPage={currentListingPage}
+                                totalPages={listingPageCount}
+                                onPageChange={setCurrentListingPage}
+                            />
+
+                            <div className="text-center mt-4 text-sm text-gray-600">
+                                <p>{filteredListings.length} ilan içinden {(currentListingPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentListingPage * ITEMS_PER_PAGE, filteredListings.length)} arası gösteriliyor</p>
+                            </div>
+                        </>
                     ) : (
                         <div className="bg-white rounded-xl shadow-lg p-10 text-center border border-gray-200">
                             <div className="text-6xl mb-4">🔍</div>

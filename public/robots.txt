@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://peepet.com.tr/sitemap.xml
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /profile/edit
+Disallow: /user/edit
+Disallow: /business/dashboard/
+
+# Allow important pages
+Allow: /
+Allow: /listings
+Allow: /activities
+Allow: /events
+Allow: /vets
+Allow: /isletmeler
+Allow: /auth 

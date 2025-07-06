@@ -11,7 +11,7 @@ import { breeds } from '@/data/breeds';
 
 interface PetFormData {
     name: string;
-    type: 'dog' | 'cat' | 'rabbit' | 'bird';
+    type: 'dog' | 'cat' | 'rabbit' | 'bird' | 'hamster' | 'guinea-pig' | 'ferret' | 'turtle' | 'fish' | 'snake' | 'lizard' | 'hedgehog' | 'exotic';
     breed: string;
     age: string;
     gender: 'male' | 'female';
@@ -300,13 +300,22 @@ export default function EditPetProfile() {
                                     <select
                                         id="type"
                                         value={formData.type}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'dog' | 'cat' | 'rabbit' | 'bird' }))}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as PetFormData['type'] }))}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm appearance-none"
                                     >
                                         <option value="dog">Köpek</option>
                                         <option value="cat">Kedi</option>
                                         <option value="rabbit">Tavşan</option>
                                         <option value="bird">Kuş</option>
+                                        <option value="hamster">Hamster</option>
+                                        <option value="guinea-pig">Guinea Pig</option>
+                                        <option value="ferret">Gelincik</option>
+                                        <option value="turtle">Kaplumbağa</option>
+                                        <option value="fish">Balık</option>
+                                        <option value="snake">Yılan</option>
+                                        <option value="lizard">Kertenkele</option>
+                                        <option value="hedgehog">Kirpi</option>
+                                        <option value="exotic">Egzotik Hayvan</option>
                                     </select>
                                 </div>
                             </div>

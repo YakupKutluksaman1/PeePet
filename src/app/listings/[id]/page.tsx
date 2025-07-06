@@ -181,11 +181,21 @@ export default function ListingDetailPage() {
                             <div>
                                 <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-center gap-3">
                                     {listing.title}
-                                    <span className="text-4xl">
+                                    <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl mr-3">
                                         {listing.petType === 'dog' ? '🐕' :
                                             listing.petType === 'cat' ? '🐈' :
-                                                listing.petType === 'rabbit' ? '🐇' : '🦜'}
-                                    </span>
+                                                listing.petType === 'rabbit' ? '🐇' :
+                                                    listing.petType === 'bird' ? '🦜' :
+                                                        listing.petType === 'hamster' ? '🐹' :
+                                                            listing.petType === 'guinea-pig' ? '🐹' :
+                                                                listing.petType === 'ferret' ? '🐾' :
+                                                                    listing.petType === 'turtle' ? '🐢' :
+                                                                        listing.petType === 'fish' ? '🐠' :
+                                                                            listing.petType === 'snake' ? '🐍' :
+                                                                                listing.petType === 'lizard' ? '🦎' :
+                                                                                    listing.petType === 'hedgehog' ? '🦔' :
+                                                                                        listing.petType === 'exotic' ? '🦓' : '🐾'}
+                                    </div>
                                 </h1>
                                 <p className="text-gray-500 flex items-center gap-2">
                                     <span className="text-xl">📍</span>
@@ -254,18 +264,36 @@ export default function ListingDetailPage() {
                                     </div>
                                 )}
                                 {listing.petType && (
-                                    <div className="bg-white/70 p-3 rounded-lg flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                            <span className="text-lg">🐾</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">Tür</p>
-                                            <p className="font-medium text-gray-900">
-                                                {listing.petType === 'dog' ? 'Köpek' :
-                                                    listing.petType === 'cat' ? 'Kedi' :
-                                                        listing.petType === 'rabbit' ? 'Tavşan' :
-                                                            listing.petType === 'bird' ? 'Kuş' : 'Diğer'}
-                                            </p>
+                                    <div className="flex items-center mb-4">
+                                        <div className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm flex items-center mr-2">
+                                            <span className="mr-1">
+                                                {listing.petType === 'dog' ? '🐕' :
+                                                    listing.petType === 'cat' ? '🐈' :
+                                                        listing.petType === 'rabbit' ? '🐇' :
+                                                            listing.petType === 'bird' ? '🦜' :
+                                                                listing.petType === 'hamster' ? '🐹' :
+                                                                    listing.petType === 'guinea-pig' ? '🐹' :
+                                                                        listing.petType === 'ferret' ? '🐾' :
+                                                                            listing.petType === 'turtle' ? '🐢' :
+                                                                                listing.petType === 'fish' ? '🐠' :
+                                                                                    listing.petType === 'snake' ? '🐍' :
+                                                                                        listing.petType === 'lizard' ? '🦎' :
+                                                                                            listing.petType === 'hedgehog' ? '🦔' :
+                                                                                                listing.petType === 'exotic' ? '🦓' : '🐾'}
+                                            </span>
+                                            {listing.petType === 'dog' ? 'Köpek' :
+                                                listing.petType === 'cat' ? 'Kedi' :
+                                                    listing.petType === 'rabbit' ? 'Tavşan' :
+                                                        listing.petType === 'bird' ? 'Kuş' :
+                                                            listing.petType === 'hamster' ? 'Hamster' :
+                                                                listing.petType === 'guinea-pig' ? 'Guinea Pig' :
+                                                                    listing.petType === 'ferret' ? 'Gelincik' :
+                                                                        listing.petType === 'turtle' ? 'Kaplumbağa' :
+                                                                            listing.petType === 'fish' ? 'Balık' :
+                                                                                listing.petType === 'snake' ? 'Yılan' :
+                                                                                    listing.petType === 'lizard' ? 'Kertenkele' :
+                                                                                        listing.petType === 'hedgehog' ? 'Kirpi' :
+                                                                                            listing.petType === 'exotic' ? 'Egzotik Hayvan' : 'Diğer'}
                                         </div>
                                     </div>
                                 )}

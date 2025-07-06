@@ -8,6 +8,7 @@ import { User } from '@/types/user'
 import { cities } from '@/data/cities'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
+import Image from 'next/image'
 
 const EMOJIS = ['🐕', '🐈', '🐇', '🦊', '🐾', '❤️', '🐱', '🐶', '🐰', '🦮', '🐩', '🐈‍⬛', '🐕‍🦺', '🐹', '🦁', '🐯', '🦒', '🦊', '💖', '💝', '💗', '🌸', '🎀']
 
@@ -23,11 +24,18 @@ export default function AuthPage() {
     const [city, setCity] = useState('')
     const [district, setDistrict] = useState('')
     const [backgroundEmojis, setBackgroundEmojis] = useState<Array<{ emoji: string; style: any }>>([])
+    const [showTermsModal, setShowTermsModal] = useState(false)
 
     const { signIn, signUp, logout } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
+        // Kullanıcının daha önce şartları gördüğünü kontrol et
+        const hasSeenTerms = localStorage.getItem('hasSeenTerms')
+        if (!hasSeenTerms) {
+            setShowTermsModal(true)
+        }
+
         // Arka plan emojilerini oluştur
         const emojis = Array.from({ length: 20 }, () => ({
             emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
@@ -68,6 +76,11 @@ export default function AuthPage() {
 
         return () => clearInterval(interval)
     }, [])
+
+    const handleCloseTermsModal = () => {
+        setShowTermsModal(false)
+        localStorage.setItem('hasSeenTerms', 'true')
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -166,14 +179,29 @@ export default function AuthPage() {
 
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-8 w-full max-w-md relative z-10 shadow-xl border border-gray-100">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-3">
-                        <span className="text-4xl">🐾</span>
+                    {/* Logo Alanı */}
+                    <div className="mx-auto w-32 h-32 flex items-center justify-center mb-4">
+                        <Image src="/peepet.png" alt="PeePet Logo" width={120} height={120} className="rounded-full object-cover" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
                         {isLogin ? 'Hoş Geldiniz' : 'Aramıza Katılın'}
-                        <span className="text-4xl">🐾</span>
                     </h2>
                     <p className="text-gray-600">
                         {isLogin ? 'Minik dostlarınızla buluşmaya hazır mısınız?' : 'Minik dostlarınız için yeni arkadaşlar bulun'}
                     </p>
+                </div>
+
+                {/* Uyarı Mesajı */}
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                        <span className="text-amber-500 text-xl">⚠️</span>
+                        <div>
+                            <p className="text-amber-800 font-medium text-sm leading-relaxed">
+                                <strong>Önemli Uyarı:</strong> Hayvanların satışı, ticareti ve pazarlaması yasaktır.
+                                Sadece güvenilir kişilere sahiplendirilebilir.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -337,6 +365,69 @@ export default function AuthPage() {
                     </button>
                 </form>
             </div>
+
+            {/* Şartlar ve Koşullar Modal */}
+            {showTermsModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300">
+                        <div className="text-center mb-6">
+                            {/* Logo Alanı */}
+                            <div className="mx-auto w-36 h-36 flex items-center justify-center mb-4">
+                                <Image src="/peepet.png" alt="PeePet Logo" width={135} height={135} className="rounded-full object-cover" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">
+                                Önemli Bilgilendirme
+                            </h3>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">🚫</span>
+                                    <div>
+                                        <p className="text-red-800 font-medium text-sm leading-relaxed">
+                                            <strong>Yasal Uyarı:</strong> Hayvanların satışı, ticareti ve pazarlaması yasaktır.
+                                            Bu platform sadece güvenilir kişilere sahiplendirme amacıyla kullanılabilir.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-blue-500 text-xl">ℹ️</span>
+                                    <div>
+                                        <p className="text-blue-800 text-sm leading-relaxed">
+                                            <strong>Platformumuzun Amacı:</strong> Hayvan severleri bir araya getirmek,
+                                            sahipsiz hayvanlar için yuva bulmak ve sorumlu sahiplenmeyi desteklemektir.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-green-500 text-xl">💚</span>
+                                    <div>
+                                        <p className="text-green-800 text-sm leading-relaxed">
+                                            <strong>Sorumlu Sahiplenme:</strong> Lütfen hayvanları sahiplenirken
+                                            uzun vadeli bakım sorumluluğunu göz önünde bulundurun.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleCloseTermsModal}
+                            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                        >
+                            <span>✓</span>
+                            Anladım, Devam Et
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <style jsx>{`
                 @keyframes float {

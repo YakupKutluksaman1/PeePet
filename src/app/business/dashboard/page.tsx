@@ -719,14 +719,6 @@ export default function BusinessDashboard() {
                             <span>İlanlarım</span>
                         </Link>
                         <button
-                            onClick={() => setActiveTab('mesajlar')}
-                            className={`px-4 py-2.5 rounded-full flex items-center transition-all duration-300 ${activeTab === 'mesajlar'
-                                ? 'bg-white text-indigo-700 font-medium shadow-md transform scale-105'
-                                : 'text-white hover:bg-indigo-600 hover:shadow-md transform hover:scale-105'}`}>
-                            <span className="text-lg mr-2">💬</span>
-                            <span>Mesajlar</span>
-                        </button>
-                        <button
                             onClick={() => setActiveTab('profil')}
                             className={`px-4 py-2.5 rounded-full flex items-center transition-all duration-300 ${activeTab === 'profil'
                                 ? 'bg-white text-indigo-700 font-medium shadow-md transform scale-105'
@@ -775,17 +767,6 @@ export default function BusinessDashboard() {
                                 <span className="text-xl mr-3">🐾</span>
                                 <span>İlanlarım</span>
                             </Link>
-                            <button
-                                onClick={() => {
-                                    setActiveTab('mesajlar');
-                                    setMobileMenuOpen(false);
-                                }}
-                                className={`px-4 py-3 rounded-lg flex items-center transition-all duration-300 ${activeTab === 'mesajlar'
-                                    ? 'bg-white text-indigo-800 font-medium shadow-md'
-                                    : 'hover:bg-indigo-700 transform hover:translate-x-1'}`}>
-                                <span className="text-xl mr-3">💬</span>
-                                <span>Mesajlar</span>
-                            </button>
                             <button
                                 onClick={() => {
                                     setActiveTab('profil');
@@ -897,18 +878,6 @@ export default function BusinessDashboard() {
                                     <div>
                                         <p className="text-sm text-gray-500">Toplam Görüntülenme</p>
                                         <p className="text-2xl font-bold text-green-800">0</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg shadow-md p-4 hover:shadow-lg hover:scale-105 transition-all duration-300 border border-blue-200 transform hover:-translate-y-1">
-                                <div className="flex items-center">
-                                    <div className="bg-blue-200 p-3 rounded-lg mr-4 shadow-inner">
-                                        <span className="text-2xl">💬</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">Okunmamış Mesajlar</p>
-                                        <p className="text-2xl font-bold text-blue-800">0</p>
                                     </div>
                                 </div>
                             </div>

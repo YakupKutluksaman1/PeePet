@@ -540,5 +540,346 @@ export const petTypes: PetType[] = [
                 severity: 'medium'
             }
         ]
+    },
+    {
+        id: 'hamster',
+        name: 'Hamster',
+        breeds: [
+            {
+                id: 'syrian',
+                name: 'Suriye Hamsteri',
+                description: 'Büyük, sevimli ve genellikle yalnız yaşayan bir tür',
+                characteristics: ['Büyük boy', 'Sevimli', 'Yalnız', 'Aktif', 'Meraklı', 'Temiz'],
+                severity: 'low'
+            },
+            {
+                id: 'roborovski',
+                name: 'Roborovski Cüce Hamsteri',
+                description: 'Çok küçük, hızlı ve sosyal bir tür',
+                characteristics: ['Çok küçük', 'Hızlı', 'Sosyal', 'Aktif', 'Meraklı', 'Çevik'],
+                severity: 'low'
+            },
+            {
+                id: 'winter-white',
+                name: 'Kış Beyazı Cüce Hamsteri',
+                description: 'Küçük, sevimli ve sosyal bir tür',
+                characteristics: ['Küçük boy', 'Sevimli', 'Sosyal', 'Meraklı', 'Oyuncu', 'Aktif'],
+                severity: 'low'
+            },
+            {
+                id: 'campbell',
+                name: 'Campbell Cüce Hamsteri',
+                description: 'Küçük, sevimli ve genellikle sosyal bir tür',
+                characteristics: ['Küçük boy', 'Sevimli', 'Sosyal', 'Meraklı', 'Oyuncu', 'Aktif'],
+                severity: 'low'
+            },
+            {
+                id: 'chinese',
+                name: 'Çin Hamsteri',
+                description: 'Küçük, hızlı ve aktif bir tür',
+                characteristics: ['Küçük boy', 'Hızlı', 'Aktif', 'Meraklı', 'Çevik', 'Sevimli'],
+                severity: 'low'
+            }
+        ]
+    },
+    {
+        id: 'guinea-pig',
+        name: 'Guinea Pig',
+        breeds: [
+            {
+                id: 'american',
+                name: 'Amerikan Guinea Pig',
+                description: 'Sakin, sevecen ve uyumlu bir tür',
+                characteristics: ['Sakin', 'Sevecen', 'Uyumlu', 'Sosyal', 'Konuşkan', 'Oyuncu'],
+                severity: 'low'
+            },
+            {
+                id: 'abyssinian',
+                name: 'Habeş Guinea Pig',
+                description: 'Enerjik, meraklı ve sevecen bir tür',
+                characteristics: ['Enerjik', 'Meraklı', 'Sevecen', 'Sosyal', 'Oyuncu', 'Konuşkan'],
+                severity: 'low'
+            },
+            {
+                id: 'peruvian',
+                name: 'Peru Guinea Pig',
+                description: 'Uzun tüylü, sakin ve sevecen bir tür',
+                characteristics: ['Uzun tüylü', 'Sakin', 'Sevecen', 'Sosyal', 'Konuşkan', 'Uyumlu'],
+                severity: 'medium'
+            },
+            {
+                id: 'silkie',
+                name: 'Silkie Guinea Pig',
+                description: 'İpeksi tüylü, sakin ve sevecen bir tür',
+                characteristics: ['İpeksi tüylü', 'Sakin', 'Sevecen', 'Sosyal', 'Konuşkan', 'Uyumlu'],
+                severity: 'medium'
+            },
+            {
+                id: 'teddy',
+                name: 'Teddy Guinea Pig',
+                description: 'Kıvırcık tüylü, sevimli ve sosyal bir tür',
+                characteristics: ['Kıvırcık tüylü', 'Sevimli', 'Sosyal', 'Konuşkan', 'Oyuncu', 'Uyumlu'],
+                severity: 'low'
+            }
+        ]
+    },
+    {
+        id: 'ferret',
+        name: 'Gelincik',
+        breeds: [
+            {
+                id: 'standard',
+                name: 'Standart Gelincik',
+                description: 'Oyuncu, zeki ve enerjik bir tür',
+                characteristics: ['Oyuncu', 'Zeki', 'Enerjik', 'Meraklı', 'Sosyal', 'Eğitilebilir'],
+                severity: 'medium'
+            },
+            {
+                id: 'angora',
+                name: 'Ankara Gelinciği',
+                description: 'Uzun tüylü, oyuncu ve zeki bir tür',
+                characteristics: ['Uzun tüylü', 'Oyuncu', 'Zeki', 'Enerjik', 'Meraklı', 'Sosyal'],
+                severity: 'medium'
+            }
+        ]
+    },
+    {
+        id: 'turtle',
+        name: 'Kaplumbağa',
+        breeds: [
+            {
+                id: 'red-eared-slider',
+                name: 'Kırmızı Yanaklı Su Kaplumbağası',
+                description: 'Popüler, aktif ve uzun ömürlü bir tür',
+                characteristics: ['Aktif', 'Su seven', 'Uzun ömürlü', 'Dayanıklı', 'Meraklı', 'Büyük boy'],
+                severity: 'medium'
+            },
+            {
+                id: 'box-turtle',
+                name: 'Kutu Kaplumbağası',
+                description: 'Karasal, sakin ve uzun ömürlü bir tür',
+                characteristics: ['Karasal', 'Sakin', 'Uzun ömürlü', 'Utangaç', 'Dayanıklı', 'Bağımsız'],
+                severity: 'medium'
+            },
+            {
+                id: 'painted-turtle',
+                name: 'Boyalı Kaplumbağa',
+                description: 'Renkli, aktif ve uyumlu bir tür',
+                characteristics: ['Renkli', 'Aktif', 'Uyumlu', 'Su seven', 'Dayanıklı', 'Meraklı'],
+                severity: 'medium'
+            },
+            {
+                id: 'map-turtle',
+                name: 'Harita Kaplumbağası',
+                description: 'Desenli, sakin ve su seven bir tür',
+                characteristics: ['Desenli', 'Sakin', 'Su seven', 'Meraklı', 'Çekingen', 'Uyumlu'],
+                severity: 'medium'
+            },
+            {
+                id: 'greek-tortoise',
+                name: 'Yunan Kara Kaplumbağası',
+                description: 'Karasal, sakin ve uzun ömürlü bir tür',
+                characteristics: ['Karasal', 'Sakin', 'Uzun ömürlü', 'Dayanıklı', 'Bağımsız', 'Otçul'],
+                severity: 'medium'
+            }
+        ]
+    },
+    {
+        id: 'fish',
+        name: 'Balık',
+        breeds: [
+            {
+                id: 'betta',
+                name: 'Beta Balığı',
+                description: 'Renkli, güzel ve genellikle yalnız yaşayan bir tür',
+                characteristics: ['Renkli', 'Yalnız', 'Gösterişli', 'Dayanıklı', 'Enerjik', 'Savaşçı'],
+                severity: 'low'
+            },
+            {
+                id: 'goldfish',
+                name: 'Japon Balığı',
+                description: 'Popüler, dayanıklı ve uzun ömürlü bir tür',
+                characteristics: ['Popüler', 'Dayanıklı', 'Uzun ömürlü', 'Sosyal', 'Sakin', 'Uyumlu'],
+                severity: 'low'
+            },
+            {
+                id: 'guppy',
+                name: 'Lepistes',
+                description: 'Renkli, aktif ve sosyal bir tür',
+                characteristics: ['Renkli', 'Aktif', 'Sosyal', 'Üretken', 'Uyumlu', 'Dayanıklı'],
+                severity: 'low'
+            },
+            {
+                id: 'tetra',
+                name: 'Tetra',
+                description: 'Küçük, sosyal ve aktif bir tür',
+                characteristics: ['Küçük boy', 'Sosyal', 'Aktif', 'Sürü halinde', 'Renkli', 'Uyumlu'],
+                severity: 'low'
+            },
+            {
+                id: 'angelfish',
+                name: 'Melek Balığı',
+                description: 'Zarif, sosyal ve büyük bir tür',
+                characteristics: ['Zarif', 'Sosyal', 'Büyük boy', 'Gösterişli', 'Aktif', 'Teritoryal'],
+                severity: 'medium'
+            },
+            {
+                id: 'oscar',
+                name: 'Oscar Balığı',
+                description: 'Zeki, büyük ve aktif bir tür',
+                characteristics: ['Zeki', 'Büyük boy', 'Aktif', 'Territoryal', 'Tanıma yeteneği', 'Meraklı'],
+                severity: 'high'
+            },
+            {
+                id: 'discus',
+                name: 'Diskus Balığı',
+                description: 'Renkli, hassas ve sosyal bir tür',
+                characteristics: ['Renkli', 'Hassas', 'Sosyal', 'Gösterişli', 'Yassı', 'Sakin'],
+                severity: 'high'
+            },
+            {
+                id: 'koi',
+                name: 'Koi Balığı',
+                description: 'Büyük, renkli ve uzun ömürlü bir tür',
+                characteristics: ['Büyük boy', 'Renkli', 'Uzun ömürlü', 'Sosyal', 'Tanıma yeteneği', 'Dayanıklı'],
+                severity: 'high'
+            }
+        ]
+    },
+    {
+        id: 'snake',
+        name: 'Yılan',
+        breeds: [
+            {
+                id: 'corn-snake',
+                name: 'Mısır Yılanı',
+                description: 'Uysal, renkli ve bakımı kolay bir tür',
+                characteristics: ['Uysal', 'Renkli', 'Bakımı kolay', 'Orta boy', 'Zararsız', 'Uyumlu'],
+                severity: 'medium'
+            },
+            {
+                id: 'ball-python',
+                name: 'Toparlak Piton',
+                description: 'Sakin, uysal ve orta boyda bir tür',
+                characteristics: ['Sakin', 'Uysal', 'Orta boy', 'Uyumlu', 'Zararsız', 'Dayanıklı'],
+                severity: 'medium'
+            },
+            {
+                id: 'king-snake',
+                name: 'Kral Yılanı',
+                description: 'Renkli, zararsız ve uysal bir tür',
+                characteristics: ['Renkli', 'Zararsız', 'Uysal', 'Aktif', 'Dayanıklı', 'Orta boy'],
+                severity: 'medium'
+            },
+            {
+                id: 'milk-snake',
+                name: 'Süt Yılanı',
+                description: 'Renkli, zararsız ve uysal bir tür',
+                characteristics: ['Renkli', 'Zararsız', 'Uysal', 'Aktif', 'Dayanıklı', 'Orta boy'],
+                severity: 'medium'
+            },
+            {
+                id: 'garter-snake',
+                name: 'Garter Yılanı',
+                description: 'Küçük, aktif ve zararsız bir tür',
+                characteristics: ['Küçük boy', 'Aktif', 'Zararsız', 'Hızlı', 'Dayanıklı', 'Uyumlu'],
+                severity: 'low'
+            }
+        ]
+    },
+    {
+        id: 'lizard',
+        name: 'Kertenkele',
+        breeds: [
+            {
+                id: 'bearded-dragon',
+                name: 'Sakallı Ejder',
+                description: 'Sakin, uysal ve bakımı kolay bir tür',
+                characteristics: ['Sakin', 'Uysal', 'Bakımı kolay', 'Sevimli', 'Tanıma yeteneği', 'Sosyal'],
+                severity: 'medium'
+            },
+            {
+                id: 'leopard-gecko',
+                name: 'Leopar Gecko',
+                description: 'Sevimli, uysal ve bakımı kolay bir tür',
+                characteristics: ['Sevimli', 'Uysal', 'Bakımı kolay', 'Gece aktif', 'Dayanıklı', 'Uyumlu'],
+                severity: 'low'
+            },
+            {
+                id: 'crested-gecko',
+                name: 'Tepelikli Gecko',
+                description: 'Sevimli, zararsız ve evcilleştirilebilir bir tür',
+                characteristics: ['Sevimli', 'Zararsız', 'Evcilleştirilebilir', 'Zıplayan', 'Gece aktif', 'Uyumlu'],
+                severity: 'low'
+            },
+            {
+                id: 'blue-tongue-skink',
+                name: 'Mavi Dilli Skink',
+                description: 'Sakin, uysal ve zeki bir tür',
+                characteristics: ['Sakin', 'Uysal', 'Zeki', 'Omnivore', 'Dayanıklı', 'Sevimli'],
+                severity: 'medium'
+            },
+            {
+                id: 'chameleon',
+                name: 'Bukalemun',
+                description: 'Renk değiştiren, hassas ve özel bakım gerektiren bir tür',
+                characteristics: ['Renk değiştiren', 'Hassas', 'Özel bakım', 'Yavaş', 'Ürkek', 'Etkileyici'],
+                severity: 'high'
+            }
+        ]
+    },
+    {
+        id: 'hedgehog',
+        name: 'Kirpi',
+        breeds: [
+            {
+                id: 'african-pygmy',
+                name: 'Afrika Cüce Kirpisi',
+                description: 'Sevimli, sakin ve alışması kolay bir tür',
+                characteristics: ['Sevimli', 'Sakin', 'Alışması kolay', 'Dikenli', 'Gece aktif', 'Meraklı'],
+                severity: 'medium'
+            }
+        ]
+    },
+    {
+        id: 'exotic',
+        name: 'Egzotik Hayvanlar',
+        breeds: [
+            {
+                id: 'sugar-glider',
+                name: 'Şeker Uçuşkanı',
+                description: 'Sevimli, sosyal ve aktif bir tür',
+                characteristics: ['Sevimli', 'Sosyal', 'Aktif', 'Gece aktif', 'Uçan', 'Bağlanma yeteneği'],
+                severity: 'high'
+            },
+            {
+                id: 'chinchilla',
+                name: 'Çinçilla',
+                description: 'Yumuşak tüylü, aktif ve uzun ömürlü bir tür',
+                characteristics: ['Yumuşak tüylü', 'Aktif', 'Uzun ömürlü', 'Gece aktif', 'Zıplayan', 'Temiz'],
+                severity: 'medium'
+            },
+            {
+                id: 'axolotl',
+                name: 'Aksolotl',
+                description: 'Suda yaşayan, sevimli ve dayanıklı bir tür',
+                characteristics: ['Suda yaşayan', 'Sevimli', 'Dayanıklı', 'Yenilenebilir', 'Sakin', 'Özel görünüm'],
+                severity: 'medium'
+            },
+            {
+                id: 'tarantula',
+                name: 'Tarantula',
+                description: 'Sessiz, düşük bakım gerektiren bir tür',
+                characteristics: ['Sessiz', 'Düşük bakım', 'Etkileyici', 'Uzun ömürlü', 'Yavaş', 'Saklanmacı'],
+                severity: 'medium'
+            },
+            {
+                id: 'bearded-dragon',
+                name: 'Sakallı Ejder',
+                description: 'Sakin, uysal ve bakımı kolay bir tür',
+                characteristics: ['Sakin', 'Uysal', 'Bakımı kolay', 'Sevimli', 'Tanıma yeteneği', 'Sosyal'],
+                severity: 'medium'
+            }
+        ]
     }
 ]; 

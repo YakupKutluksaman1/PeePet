@@ -7,7 +7,7 @@ export interface Listing {
     photos: string[];
     createdAt: string;
     updatedAt: string;
-    petType: 'dog' | 'cat' | 'rabbit' | 'bird' | 'other';
+    petType: 'dog' | 'cat' | 'rabbit' | 'bird' | 'hamster' | 'guinea-pig' | 'ferret' | 'turtle' | 'fish' | 'snake' | 'lizard' | 'hedgehog' | 'exotic' | 'other';
     petName: string;
     petAge: string;
     petGender: 'male' | 'female';

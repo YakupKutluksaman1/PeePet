@@ -227,6 +227,15 @@ export default function CreateProfilePage() {
                                         <option value="cat">Kedi</option>
                                         <option value="rabbit">Tavşan</option>
                                         <option value="bird">Kuş</option>
+                                        <option value="hamster">Hamster</option>
+                                        <option value="guinea-pig">Guinea Pig</option>
+                                        <option value="ferret">Gelincik</option>
+                                        <option value="turtle">Kaplumbağa</option>
+                                        <option value="fish">Balık</option>
+                                        <option value="snake">Yılan</option>
+                                        <option value="lizard">Kertenkele</option>
+                                        <option value="hedgehog">Kirpi</option>
+                                        <option value="exotic">Egzotik Hayvan</option>
                                     </select>
                                 </div>
                             </div>
