@@ -456,7 +456,8 @@ input[type="tel"]:focus {
   background-color: #ffffff !important;
 }
 
-/* Select alanları için de düzelt */
+/* Select alanları için güçlü stiller */
+select,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus,
@@ -465,4 +466,38 @@ select:-webkit-autofill:active {
   -webkit-text-fill-color: #1f2937 !important;
   color: #1f2937 !important;
   background-color: #f9fafb !important;
+  font-size: 16px !important;
+  /* iOS zoom'u önlemek için */
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+select:focus,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+}
+
+/* Option elementleri için de stiller */
+select option {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+  font-size: 16px !important;
+}
+
+/* Tüm form elementleri için genel güçlü kurallar */
+input,
+select,
+textarea {
+  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
 }
