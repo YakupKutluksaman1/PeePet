@@ -407,3 +407,32 @@ body {
   animation: float 6s ease-in-out infinite;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
 }
+
+/* Mobil cihazlarda otomatik doldurma stillerini düzelt - TÜM UYGULAMA GENELİNDE */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #374151 !important;
+  color: #374151 !important;
+  background-color: #f9fafb !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+}
+
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  background-color: #ffffff !important;
+}
+
+/* Select alanları için de düzelt */
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #374151 !important;
+  color: #374151 !important;
+  background-color: #f9fafb !important;
+}
