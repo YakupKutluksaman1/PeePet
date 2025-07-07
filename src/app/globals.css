@@ -409,20 +409,50 @@ body {
 }
 
 /* Mobil cihazlarda otomatik doldurma stillerini düzelt - TÜM UYGULAMA GENELİNDE */
+/* Çok güçlü CSS kuralları - tüm tarayıcılar için */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
-  -webkit-text-fill-color: #374151 !important;
-  color: #374151 !important;
+input:-webkit-autofill:active,
+input[type="text"]:-webkit-autofill,
+input[type="email"]:-webkit-autofill,
+input[type="password"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #f9fafb inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 !important;
   background-color: #f9fafb !important;
   border-radius: 12px !important;
   transition: all 0.3s ease !important;
+  font-size: 16px !important;
+  /* iOS zoom'u önlemek için */
 }
 
-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+input:-webkit-autofill:focus,
+input[type="text"]:-webkit-autofill:focus,
+input[type="email"]:-webkit-autofill:focus,
+input[type="password"]:-webkit-autofill:focus,
+input[type="tel"]:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+}
+
+/* Genel input stilleri - autofill'den bağımsız */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"] {
+  color: #374151 !important;
+  background-color: #f9fafb !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus {
+  color: #111827 !important;
   background-color: #ffffff !important;
 }
 
@@ -431,8 +461,8 @@ select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus,
 select:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
-  -webkit-text-fill-color: #374151 !important;
-  color: #374151 !important;
+  -webkit-box-shadow: 0 0 0 1000px #f9fafb inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 !important;
   background-color: #f9fafb !important;
 }
