@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { getDatabase, ref as dbRef, get, update } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import toast, { Toaster } from 'react-hot-toast';
@@ -20,7 +20,7 @@ interface PetFormData {
 
 const EMOJIS = ['🐶', '🐱', '🐰', '🐹', '🐦', '🐢', '🐠', '🦜', '🐾', '❤️', '✨'];
 
-export default function EditPetProfile() {
+function EditPetProfileContent() {
     const { user, loading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -486,5 +486,21 @@ export default function EditPetProfile() {
                 }
             `}</style>
         </div>
+    );
+}
+
+export default function EditPetProfile() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p className="mt-4 text-lg text-gray-600">Yükleniyor...</p>
+                </div>
+            </div>
+        }>
+            <EditPetProfileContent />
+            <Toaster position="top-right" />
+        </Suspense>
     );
 } 
