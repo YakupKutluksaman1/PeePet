@@ -209,11 +209,12 @@ export const generateNearbyPets = async (
     userLocation: [number, number],
     count: number = 10,
     maxDistance: number = 10000, // metre cinsinden max mesafe (10km)
-    showAllPets: boolean = false // Kullanıcının tüm evcil hayvanlarını göster
+    showAllPets: boolean = false, // Kullanıcının tüm evcil hayvanlarını göster
+    showAllLocations: boolean = false // Tüm dünyadan hayvanları göster
 ): Promise<NearbyPet[]> => {
     try {
         // API'den gerçek verileri al
-        const pets = await fetchNearbyPets(userLocation, maxDistance, showAllPets);
+        const pets = await fetchNearbyPets(userLocation, maxDistance, showAllPets, showAllLocations);
         return pets; // Sonucu doğrudan döndür, boş olsa bile
     } catch (error) {
         console.error('❌ Veri alınamadı:', error);
@@ -228,11 +229,12 @@ export const generateNearbyPets = async (
 export const fetchNearbyPets = async (
     userLocation: [number, number],
     maxDistance: number = 10000, // metre cinsinden max mesafe (10km)
-    showAllPets: boolean = false // Kullanıcının tüm evcil hayvanlarını göster
+    showAllPets: boolean = false, // Kullanıcının tüm evcil hayvanlarını göster
+    showAllLocations: boolean = false // Tüm dünyadan hayvanları göster
 ): Promise<NearbyPet[]> => {
     try {
         // API endpoint
-        const response = await fetch(`/api/nearby-users?lat=${userLocation[0]}&lng=${userLocation[1]}&radius=${maxDistance}&showAllPets=${showAllPets}`);
+        const response = await fetch(`/api/nearby-users?lat=${userLocation[0]}&lng=${userLocation[1]}&radius=${maxDistance}&showAllPets=${showAllPets}&showAllLocations=${showAllLocations}`);
 
         if (!response.ok) {
             console.error('⛔ API yanıtı başarısız:', response.status, response.statusText);

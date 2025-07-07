@@ -24,6 +24,18 @@ type MultiPetSelectionType = {
     pets: NearbyPet[];
 };
 
+// Koordinat doğrulama fonksiyonu
+const isValidCoordinate = (location: [number, number] | undefined | null): location is [number, number] => {
+    if (!location || !Array.isArray(location) || location.length !== 2) return false;
+    const [lat, lng] = location;
+    return (
+        typeof lat === 'number' && typeof lng === 'number' &&
+        !isNaN(lat) && !isNaN(lng) &&
+        lat >= -90 && lat <= 90 &&
+        lng >= -180 && lng <= 180
+    );
+};
+
 // Evcil hayvan işaretçileri bileşeni
 const PetMarkers = memo(({ pets, onSelectPet, onMultiPetLocation }: {
     pets: NearbyPet[];
@@ -58,10 +70,24 @@ const PetMarkers = memo(({ pets, onSelectPet, onMultiPetLocation }: {
         });
     };
 
+    // Marker limiti - performans için
+    const MAX_MARKERS = 100;
+
+    // Geçerli koordinatlara sahip hayvanları filtrele
+    const validPets = pets.filter(pet => isValidCoordinate(pet.location));
+
+    // Çok fazla marker varsa en yakın olanları al
+    const limitedPets = validPets.length > MAX_MARKERS
+        ? validPets.slice(0, MAX_MARKERS)
+        : validPets;
+
+    // Kullanıcıya bilgi ver
+    const isLimited = validPets.length > MAX_MARKERS;
+
     // Konum gruplarını oluştur - aynı/yakın konumdaki hayvanları grupla
     const locationGroups = new Map<string, NearbyPet[]>();
 
-    pets.forEach(pet => {
+    limitedPets.forEach(pet => {
         // Lokasyon için bir anahtar oluştur (yaklaşık 10 metre hassasiyetle)
         const precision = 5; // 5 basamak hassasiyet (yaklaşık 1 metre)
         const locationKey = `${pet.location[0].toFixed(precision)},${pet.location[1].toFixed(precision)}`;
@@ -75,6 +101,24 @@ const PetMarkers = memo(({ pets, onSelectPet, onMultiPetLocation }: {
 
     return (
         <>
+            {isLimited && (
+                <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 1000,
+                    background: 'rgba(245, 158, 11, 0.9)',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backdropFilter: 'blur(4px)'
+                }}>
+                    📍 Performans için sadece ilk {MAX_MARKERS} hayvan gösteriliyor
+                </div>
+            )}
             {Array.from(locationGroups.entries()).map(([locationKey, petsAtLocation]) => {
                 const firstPet = petsAtLocation[0];
 
@@ -128,6 +172,7 @@ interface MapComponentProps {
     userLocation: [number, number];
     pets: NearbyPet[];
     onSelectPet: (pet: NearbyPet | null) => void;
+    showAllLocations?: boolean; // Tüm dünya modunu belirtir
 }
 
 // Ana Harita Bileşeni - Bu, dynamic import ile çağrılacak
@@ -137,7 +182,8 @@ const MapComponent = ({
     radius,
     userLocation,
     pets,
-    onSelectPet
+    onSelectPet,
+    showAllLocations = false
 }: MapComponentProps) => {
     const [defaultIcon, setDefaultIcon] = useState<L.Icon | null>(null);
     const [multiPetSelection, setMultiPetSelection] = useState<MultiPetSelectionType>({
@@ -253,19 +299,24 @@ const MapComponent = ({
         return <div className="flex items-center justify-center h-full">Harita yükleniyor...</div>;
     }
 
+    // Tüm dünya modunda uygun zoom seviyesi
+    const effectiveZoom = showAllLocations ? Math.min(zoom, 3) : zoom;
+    const effectiveCenter = showAllLocations ? [20, 0] as [number, number] : center;
+
     return (
         <>
             <MapContainer
-                center={center}
-                zoom={zoom}
+                center={effectiveCenter}
+                zoom={effectiveZoom}
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={true}
+                key={`map-${showAllLocations ? 'world' : 'local'}`} // Force re-render when mode changes
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <MapController center={center} zoom={zoom} />
+                <MapController center={effectiveCenter} zoom={effectiveZoom} />
 
                 {/* Kullanıcı konumu */}
                 <Marker position={userLocation} icon={defaultIcon}>
@@ -274,17 +325,19 @@ const MapComponent = ({
                     </Popup>
                 </Marker>
 
-                {/* Mesafe halkası */}
-                <Circle
-                    center={userLocation}
-                    radius={radius}
-                    pathOptions={{
-                        fillColor: '#4f46e5',
-                        fillOpacity: 0.1,
-                        color: '#4f46e5',
-                        weight: 1
-                    }}
-                />
+                {/* Mesafe halkası - sadece yakınımdaki modunda göster */}
+                {!showAllLocations && (
+                    <Circle
+                        center={userLocation}
+                        radius={radius}
+                        pathOptions={{
+                            fillColor: '#4f46e5',
+                            fillOpacity: 0.1,
+                            color: '#4f46e5',
+                            weight: 1
+                        }}
+                    />
+                )}
 
                 {/* Evcil Hayvan İşaretleri */}
                 <PetMarkers

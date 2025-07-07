@@ -45,6 +45,7 @@ const MatchPage = () => {
     const [mapKey, setMapKey] = useState<string>(Date.now().toString());
     const [showNoPetsWarning, setShowNoPetsWarning] = useState<boolean>(false);
     const [showAllPets, setShowAllPets] = useState<boolean>(true);
+    const [showAllLocations, setShowAllLocations] = useState<boolean>(false);
     const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
 
     // Kullanıcının evcil hayvanları
@@ -151,13 +152,20 @@ const MatchPage = () => {
                             [latitude, longitude],
                             15, // 15 evcil hayvan
                             activeFilters.distance * 1000, // km'yi metreye çevir
-                            showAllPets // Tüm evcil hayvanları göster parametresi
+                            showAllPets, // Tüm evcil hayvanları göster parametresi
+                            showAllLocations // Tüm konumlardan hayvanları göster parametresi
                         );
+
+                        console.log(`🐾 ${showAllLocations ? 'Tüm dünya' : 'Yakın'} modunda ${pets.length} hayvan bulundu`);
 
                         if (pets.length === 0) {
                             // Gerçek veri bulunmadığında daha bilgilendirici bir mesaj göster
-                            setLocationError('Yakınızda henüz evcil hayvan bulunamadı. Uygulamayı kullanan ilk kişilerden birisiniz! Arkadaşlarınızı davet ederek evcil hayvan ağını genişletebilirsiniz.');
+                            const message = showAllLocations
+                                ? 'Henüz hiçbir kullanıcı evcil hayvanını kaydetmemiş. İlk kayıt yapan siz olun!'
+                                : 'Yakınızda henüz evcil hayvan bulunamadı. Uygulamayı kullanan ilk kişilerden birisiniz! Arkadaşlarınızı davet ederek evcil hayvan ağını genişletebilirsiniz.';
+                            setLocationError(message);
                         } else {
+                            setLocationError(null);
                             setNearbyPets(pets);
                             setFilteredPets(pets);
                         }
@@ -185,7 +193,7 @@ const MatchPage = () => {
             setUserLocation(defaultLocation);
             setMapReady(true);
         }
-    }, [user, selectedUserPetId, showAllPets]);
+    }, [user, selectedUserPetId, showAllPets, showAllLocations]);
 
     // Sayfa yüklendiğinde oturum kontrolü
     useEffect(() => {
@@ -227,15 +235,16 @@ const MatchPage = () => {
                     userLocation,
                     15,
                     activeFilters.distance * 1000,
-                    showAllPets
+                    showAllPets,
+                    showAllLocations
                 );
                 setNearbyPets(pets);
             }
 
             // Mesafe ve tür filtresi uygula
             const filtered = nearbyPets.filter(pet => {
-                // Mesafe filtresi (km)
-                const isWithinDistance = pet.distance <= activeFilters.distance * 1000;
+                // Mesafe filtresi (tüm konumlar modunda devre dışı)
+                const isWithinDistance = showAllLocations || pet.distance <= activeFilters.distance * 1000;
 
                 // Tür filtresi
                 const matchesType = activeFilters.petTypes.includes(pet.type);
@@ -281,7 +290,8 @@ const MatchPage = () => {
                     userLocation,
                     15,
                     10 * 1000, // 10 km
-                    showAllPets
+                    showAllPets,
+                    showAllLocations
                 );
                 setNearbyPets(pets);
                 setFilteredPets(pets);
@@ -389,11 +399,12 @@ const MatchPage = () => {
                 <MapWithNoSSR
                     key={mapKey}
                     center={userLocation}
-                    zoom={13}
+                    zoom={showAllLocations ? 2 : 13}
                     radius={activeFilters.distance * 1000}
                     userLocation={userLocation}
                     pets={filteredPets}
                     onSelectPet={setSelectedPet}
+                    showAllLocations={showAllLocations}
                 />
             </div>
         );
@@ -509,7 +520,8 @@ const MatchPage = () => {
                 userLocation,
                 15,
                 activeFilters.distance * 1000,
-                showAllPets
+                showAllPets,
+                showAllLocations
             );
 
             setNearbyPets(pets);
@@ -598,7 +610,7 @@ const MatchPage = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            Yakınında
+                            {showAllLocations ? 'Tüm Dünya' : 'Yakınında'}
                         </h1>
                     </div>
 
@@ -619,6 +631,19 @@ const MatchPage = () => {
                                     {showAllPets ? 'Tüm Hayvanlar' : 'Aktif Hayvan'}
                                 </button>
                                 <button
+                                    onClick={() => {
+                                        setShowAllLocations(!showAllLocations);
+                                        setTimeout(() => refreshMapData(), 100);
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 ${showAllLocations
+                                        ? 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    <span className={`block w-2 h-2 rounded-full ${showAllLocations ? 'bg-orange-500' : 'bg-gray-400'}`}></span>
+                                    {showAllLocations ? 'Tüm Dünya' : 'Yakınımdaki'}
+                                </button>
+                                <button
                                     onClick={() => toggleLocationSharing(!userActiveStatus)}
                                     disabled={updatingStatus}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 ${userActiveStatus
@@ -633,7 +658,9 @@ const MatchPage = () => {
                         )}
                         <div className="px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full text-sm font-medium text-indigo-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-300">
                             <span className="text-indigo-600 font-bold">{filteredPets.length}</span>
-                            <span className="hidden sm:inline">minik dost bulundu</span>
+                            <span className="hidden sm:inline">
+                                {showAllLocations ? 'dünyadan dost bulundu' : 'minik dost bulundu'}
+                            </span>
                             <span className="sm:hidden">dost</span>
                         </div>
                     </div>
@@ -683,10 +710,12 @@ const MatchPage = () => {
                     </div>
 
                     {/* Mesafe Filtresi */}
-                    <div className="mb-8">
+                    <div className={`mb-8 ${showAllLocations ? 'opacity-50 pointer-events-none' : ''}`}>
                         <div className="flex items-center justify-between mb-3">
-                            <label className="text-sm font-medium text-gray-700">Mesafe</label>
-                            <span className="text-sm text-indigo-600 font-medium">{activeFilters.distance} km</span>
+                            <label className="text-sm font-medium text-gray-700">
+                                Mesafe {showAllLocations && <span className="text-xs text-orange-600">(Tüm Dünya modunda devre dışı)</span>}
+                            </label>
+                            <span className="text-sm text-indigo-600 font-medium">{showAllLocations ? '∞' : `${activeFilters.distance} km`}</span>
                         </div>
                         <input
                             type="range"
@@ -694,7 +723,8 @@ const MatchPage = () => {
                             max="50"
                             value={activeFilters.distance}
                             onChange={(e) => setActiveFilters({ ...activeFilters, distance: parseInt(e.target.value) })}
-                            className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 hover:accent-indigo-700 transition-all duration-300"
+                            disabled={showAllLocations}
+                            className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 hover:accent-indigo-700 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-2">
                             <span>1 km</span>

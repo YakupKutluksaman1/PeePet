@@ -38,11 +38,14 @@ export async function GET(request: NextRequest) {
     const latParam = searchParams.get('lat');
     const lngParam = searchParams.get('lng');
     const radiusParam = searchParams.get('radius') || '10000'; // Varsayılan 10km (metre)
-    const limit = Number(searchParams.get('limit') || '20'); // Varsayılan 20 sonuç
+    const showAllLocations = searchParams.get('showAllLocations') === 'true'; // Tüm dünyadan hayvanları göster
+    // Tüm dünya modunda daha fazla sonuç, local modda daha az
+    const defaultLimit = showAllLocations ? '100' : '20';
+    const limit = Number(searchParams.get('limit') || defaultLimit);
     const showAllPets = searchParams.get('showAllPets') === 'true'; // Kullanıcının tüm evcil hayvanlarını göster
 
     // Önbellek için benzersiz anahtar oluştur
-    const cacheKey = `${latParam}-${lngParam}-${radiusParam}-${limit}-${showAllPets}`;
+    const cacheKey = `${latParam}-${lngParam}-${radiusParam}-${limit}-${showAllPets}-${showAllLocations}`;
 
     // Önbellekte veri varsa ve süresi geçmediyse kullan
     const now = Date.now();
@@ -107,10 +110,10 @@ export async function GET(request: NextRequest) {
                 location.lng
             );
 
-            // Mesafeyi kontrol et
+            // Mesafeyi kontrol et (sadece tüm konumlar modu açık değilse)
             const distanceInMeters = distance * 1000; // kilometre → metre
-            if (distanceInMeters > radius) {
-                continue; // Yarıçap dışındaysa atla
+            if (!showAllLocations && distanceInMeters > radius) {
+                continue; // Yarıçap dışındaysa atla (tüm konumlar modu açık değilse)
             }
 
             // Kullanıcının evcil hayvanlarını bul

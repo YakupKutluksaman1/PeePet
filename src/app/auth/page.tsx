@@ -369,7 +369,7 @@ export default function AuthPage() {
             {/* Şartlar ve Koşullar Modal */}
             {showTermsModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
                         <div className="text-center mb-6">
                             {/* Logo Alanı */}
                             <div className="mx-auto w-36 h-36 flex items-center justify-center mb-4">
