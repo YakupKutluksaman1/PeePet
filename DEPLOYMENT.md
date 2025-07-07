@@ -1,3 +1,42 @@
+# Vercel Deployment Rehberi
+
+## Environment Variables
+Vercel'de aşağıdaki environment variables'ları tanımlamalısınız:
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com  
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com/
+```
+
+## Deployment Adımları
+
+1. **Vercel'e Git**: https://vercel.com
+2. **GitHub ile Giriş Yap**
+3. **New Project** → GitHub repository'nizi seçin
+4. **Environment Variables** sekmesinde Firebase değerlerini ekleyin
+5. **Deploy** butonuna tıklayın
+
+## Otomatik Deployment
+- Her GitHub push'unda Vercel otomatik deploy eder
+- Preview deployments branch'lar için oluşturulur
+- Production deployment sadece main/master branch için
+
+## Build Settings (Otomatik Algılanır)
+- **Framework**: Next.js
+- **Build Command**: `npm run build`
+- **Output Directory**: `.next`
+- **Install Command**: `npm install`
+
+## Domain
+Deployment sonrası Vercel size bir domain verecek:
+- `https://hayvanlar-username.vercel.app`
+- Custom domain de ekleyebilirsiniz
+
 # PeePet Deployment Rehberi
 
 ## 🚀 Vercel ile Yayınlama (Önerilen)
