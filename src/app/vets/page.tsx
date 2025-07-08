@@ -640,12 +640,12 @@ export default function VetPage() {
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-xl">👨‍⚕️</span>
                                                         <div>
-                                                            <h3 className="font-medium text-gray-900">{visit.vetName}</h3>
-                                                            <p className="text-sm text-gray-500">{visit.clinicName}</p>
+                                                            <h3 className="font-semibold text-gray-900">{visit.vetName}</h3>
+                                                            <p className="text-sm text-gray-700">{visit.clinicName}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center justify-between sm:justify-end gap-4">
-                                                        <p className="text-sm text-gray-500">
+                                                        <p className="text-sm text-gray-700">
                                                             {format(new Date(visit.date), 'd MMMM yyyy', { locale: tr })}
                                                         </p>
                                                         <button
@@ -663,16 +663,16 @@ export default function VetPage() {
                                                     </div>
                                                 </div>
                                                 <div className="mt-4 space-y-2">
-                                                    <p className="text-sm"><span className="font-medium">Teşhis:</span> {visit.diagnosis}</p>
-                                                    <p className="text-sm"><span className="font-medium">Tedavi:</span> {visit.treatment}</p>
+                                                    <p className="text-sm text-gray-800"><span className="font-medium">Teşhis:</span> {visit.diagnosis}</p>
+                                                    <p className="text-sm text-gray-800"><span className="font-medium">Tedavi:</span> {visit.treatment}</p>
                                                     {visit.medications?.length > 0 && (
                                                         <div>
-                                                            <p className="text-sm font-medium mb-1">İlaçlar:</p>
+                                                            <p className="text-sm font-medium mb-1 text-gray-800">İlaçlar:</p>
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                                 {visit.medications.map((med, idx) => (
-                                                                    <div key={idx} className="bg-white rounded-lg p-2 text-sm">
+                                                                    <div key={idx} className="bg-white rounded-lg p-2 text-sm text-gray-900">
                                                                         <p className="font-medium">{med.name}</p>
-                                                                        <p className="text-gray-500">{med.dosage} - {med.frequency}</p>
+                                                                        <p className="text-gray-700">{med.dosage} - {med.frequency}</p>
                                                                     </div>
                                                                 ))}
                                                             </div>
