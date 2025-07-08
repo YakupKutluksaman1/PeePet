@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
-import { getDatabase, ref as dbRef, get, update } from 'firebase/database';
+import { getDatabase, ref as dbRef, get, update, remove } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pet } from '@/types/pet';
@@ -37,6 +37,8 @@ function EditPetProfileContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [backgroundEmojis, setBackgroundEmojis] = useState<Array<{ emoji: string; style: any }>>([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     // Arka plan emojileri için effect
     useEffect(() => {
@@ -229,6 +231,23 @@ function EditPetProfileContent() {
             });
         } finally {
             toast.dismiss(loadingToast);
+        }
+    };
+
+    const handleDeletePet = async () => {
+        if (!user || !petId) return;
+        setDeleting(true);
+        try {
+            const db = getDatabase();
+            const petRef = dbRef(db, `pets/${user.uid}/${petId}`);
+            await remove(petRef);
+            toast.success('Evcil hayvan başarıyla silindi!');
+            setShowDeleteModal(false);
+            setDeleting(false);
+            router.push('/dashboard');
+        } catch (error) {
+            toast.error('Silme işlemi sırasında bir hata oluştu!');
+            setDeleting(false);
         }
     };
 
@@ -441,13 +460,21 @@ function EditPetProfileContent() {
                             </div>
 
                             {/* Butonlar */}
-                            <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 pt-6 border-t border-gray-100">
                                 <button
                                     type="button"
                                     onClick={() => router.back()}
                                     className="px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-colors shadow-sm border border-gray-200"
                                 >
                                     İptal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteModal(true)}
+                                    className="px-6 py-3 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors shadow-sm border border-red-200 font-medium"
+                                    disabled={isSaving || deleting}
+                                >
+                                    {deleting ? 'Siliniyor...' : 'Sil'}
                                 </button>
                                 <button
                                     type="submit"
@@ -485,6 +512,32 @@ function EditPetProfileContent() {
                     animation: float 15s linear infinite;
                 }
             `}</style>
+
+            {/* Silme Onay Modali */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Evcil Hayvanı Sil</h3>
+                        <p className="text-gray-600 mb-6">Bu işlemi geri alamazsınız. Emin misiniz?</p>
+                        <div className="flex gap-4 justify-end">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                                disabled={deleting}
+                            >
+                                Vazgeç
+                            </button>
+                            <button
+                                onClick={handleDeletePet}
+                                className={`px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors ${deleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={deleting}
+                            >
+                                {deleting ? 'Siliniyor...' : 'Evet, Sil'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

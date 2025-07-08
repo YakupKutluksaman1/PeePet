@@ -81,11 +81,14 @@ export default function CreateProfilePage() {
     useEffect(() => {
         if (pet.type) {
             setAvailableBreeds(breeds[pet.type as keyof typeof breeds] || [])
-            setPet(prev => ({ ...prev, breed: '' })) // Tür değiştiğinde ırk seçimini sıfırla
         } else {
             setAvailableBreeds([])
         }
     }, [pet.type])
+
+    useEffect(() => {
+        console.log('Render: pet.type =', pet.type, 'pet.breed =', pet.breed)
+    }, [pet])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -126,6 +129,24 @@ export default function CreateProfilePage() {
 
             // Evcil hayvanı benzersiz ID altında kaydet
             await set(newPetRef, petData)
+
+            // Formu sıfırla
+            setPet({
+                name: '',
+                type: '',
+                breed: '',
+                age: '',
+                gender: '',
+                description: '',
+            })
+            console.log('Form resetlendi! Yeni state:', {
+                name: '',
+                type: '',
+                breed: '',
+                age: '',
+                gender: '',
+                description: '',
+            })
 
             toast.success('Evcil hayvan profili başarıyla oluşturuldu! 🎉', {
                 duration: 3000,
@@ -205,7 +226,7 @@ export default function CreateProfilePage() {
                                         type="text"
                                         id="name"
                                         value={pet.name}
-                                        onChange={(e) => setPet({ ...pet, name: e.target.value })}
+                                        onChange={(e) => setPet(prev => ({ ...prev, name: e.target.value }))}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm"
                                         required
                                         placeholder="Evcil hayvanınızın adı"
@@ -218,7 +239,7 @@ export default function CreateProfilePage() {
                                     <select
                                         id="type"
                                         value={pet.type}
-                                        onChange={(e) => setPet({ ...pet, type: e.target.value })}
+                                        onChange={(e) => setPet(prev => ({ ...prev, type: e.target.value, breed: '' }))}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm appearance-none"
                                         required
                                     >
@@ -249,7 +270,7 @@ export default function CreateProfilePage() {
                                     <select
                                         id="breed"
                                         value={pet.breed}
-                                        onChange={(e) => setPet({ ...pet, breed: e.target.value })}
+                                        onChange={(e) => setPet(prev => ({ ...prev, breed: e.target.value }))}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm appearance-none"
                                         required
                                         disabled={!pet.type}
@@ -270,7 +291,7 @@ export default function CreateProfilePage() {
                                         type="text"
                                         id="age"
                                         value={pet.age}
-                                        onChange={(e) => setPet({ ...pet, age: e.target.value })}
+                                        onChange={(e) => setPet(prev => ({ ...prev, age: e.target.value }))}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm"
                                         required
                                         placeholder="Yaşı"
@@ -290,7 +311,7 @@ export default function CreateProfilePage() {
                                             name="gender"
                                             value="male"
                                             checked={pet.gender === 'male'}
-                                            onChange={(e) => setPet({ ...pet, gender: e.target.value })}
+                                            onChange={(e) => setPet(prev => ({ ...prev, gender: e.target.value }))}
                                             className="form-radio h-4 w-4 text-indigo-600"
                                         />
                                         <span className="ml-2">👨 Erkek</span>
@@ -301,7 +322,7 @@ export default function CreateProfilePage() {
                                             name="gender"
                                             value="female"
                                             checked={pet.gender === 'female'}
-                                            onChange={(e) => setPet({ ...pet, gender: e.target.value })}
+                                            onChange={(e) => setPet(prev => ({ ...prev, gender: e.target.value }))}
                                             className="form-radio h-4 w-4 text-indigo-600"
                                         />
                                         <span className="ml-2">👩 Dişi</span>
@@ -317,7 +338,7 @@ export default function CreateProfilePage() {
                                 <textarea
                                     id="description"
                                     value={pet.description}
-                                    onChange={(e) => setPet({ ...pet, description: e.target.value })}
+                                    onChange={(e) => setPet(prev => ({ ...prev, description: e.target.value }))}
                                     rows={4}
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white/80 shadow-sm"
                                     placeholder="Evcil hayvanınız hakkında bilgi verin"

@@ -26,7 +26,7 @@ export default function AuthPage() {
     const [backgroundEmojis, setBackgroundEmojis] = useState<Array<{ emoji: string; style: any }>>([])
     const [showTermsModal, setShowTermsModal] = useState(false)
 
-    const { signIn, signUp, logout } = useAuth()
+    const { signIn, signUp, logout, signInWithGoogle } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
@@ -163,6 +163,41 @@ export default function AuthPage() {
         }
     }
 
+    const handleGoogleSignIn = async () => {
+        setError('')
+        setLoading(true)
+        try {
+            const userCredential = await signInWithGoogle()
+            const user = userCredential.user
+            const db = getDatabase()
+            const userRef = ref(db, `users/${user.uid}`)
+            const snapshot = await get(userRef)
+            if (!snapshot.exists()) {
+                // Sadece Google'dan gelen bilgilerle kayıt oluştur
+                const userData: User = {
+                    id: user.uid,
+                    email: user.email || '',
+                    firstName: user.displayName?.split(' ')[0] || '',
+                    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                    phone: '',
+                    location: {
+                        city: '',
+                        district: '',
+                    },
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                }
+                await set(userRef, userData)
+            }
+            router.push('/dashboard')
+        } catch (err: any) {
+            setError('Google ile giriş başarısız oldu')
+            toast.error('Google ile giriş başarısız oldu')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-100/90 to-indigo-100/90 flex items-center justify-center p-4 relative overflow-hidden">
             <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-gray-200/50 to-indigo-200/50 backdrop-blur-sm">
@@ -178,7 +213,8 @@ export default function AuthPage() {
             </div>
 
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-8 w-full max-w-md relative z-10 shadow-xl border border-gray-100">
-                <div className="text-center mb-8">
+                {/* Logo Alanı */}
+                <div className="text-center mb-8 flex flex-col items-center justify-center">
                     {/* Logo Alanı */}
                     <div className="mx-auto w-32 h-32 flex items-center justify-center mb-4">
                         <Image src="/peepet.png" alt="PeePet Logo" width={120} height={120} className="rounded-full object-cover" />
@@ -344,6 +380,31 @@ export default function AuthPage() {
                                 <span>{isLogin ? '🎈 Giriş Yap' : '✨ Kayıt Ol'}</span>
                             </>
                         )}
+                    </button>
+
+                    {/* Veya ayraç */}
+                    <div className="flex items-center my-2">
+                        <div className="flex-grow h-px bg-gray-200" />
+                        <span className="mx-3 text-gray-400 text-sm">veya</span>
+                        <div className="flex-grow h-px bg-gray-200" />
+                    </div>
+
+                    {/* Google ile Giriş Butonu (modern stil) */}
+                    <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md hover:border-gray-400 transition-all duration-200 text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loading}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g>
+                                <path d="M44.5 20H24V28.5H36.9C36.1 32.1 32.7 35 28 35C22.5 35 18 30.5 18 25C18 19.5 22.5 15 28 15C30.3 15 32.4 15.8 34.1 17.1L39.1 12.1C36.1 9.6 32.3 8 28 8C17.5 8 9 16.5 9 27C9 37.5 17.5 46 28 46C38.5 46 47 37.5 47 27C47 25.3 46.8 23.7 46.5 22.2L44.5 20Z" fill="#4285F4" />
+                                <path d="M6.3 14.1L12.7 18.7C14.7 15.1 18.1 12.5 22.1 12.1V4.1C15.7 4.7 10.1 9.1 6.3 14.1Z" fill="#34A853" />
+                                <path d="M28 8C32.3 8 36.1 9.6 39.1 12.1L34.1 17.1C32.4 15.8 30.3 15 28 15V8Z" fill="#FBBC05" />
+                                <path d="M9 27C9 30.5 10.5 33.6 12.7 36.1L18.1 31.7C16.8 30.1 16 28.1 16 26C16 23.9 16.8 21.9 18.1 20.3L12.7 15.9C10.5 18.4 9 21.5 9 25V27Z" fill="#EA4335" />
+                            </g>
+                        </svg>
+                        <span>Google ile Giriş Yap</span>
                     </button>
 
                     <div className="flex justify-center mt-4">

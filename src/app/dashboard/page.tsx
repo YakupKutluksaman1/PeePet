@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getDatabase, ref as dbRef, onValue, set, push, get } from 'firebase/database';
+import { getDatabase, ref as dbRef, onValue, set, push, get, remove } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import { Pet, UserPets } from '@/types/pet';
@@ -67,6 +67,40 @@ interface Event {
     };
 }
 
+// typeMap ekle
+const typeMap = {
+    dog: 'Köpek',
+    cat: 'Kedi',
+    rabbit: 'Tavşan',
+    bird: 'Kuş',
+    hamster: 'Hamster',
+    'guinea-pig': 'Guinea Pig',
+    ferret: 'Gelincik',
+    turtle: 'Kaplumbağa',
+    fish: 'Balık',
+    snake: 'Yılan',
+    lizard: 'Kertenkele',
+    hedgehog: 'Kirpi',
+    exotic: 'Egzotik Hayvan'
+};
+
+// typeEmojiMap ekle
+const typeEmojiMap = {
+    dog: '🐕',
+    cat: '🐈',
+    rabbit: '🐇',
+    bird: '🦜',
+    hamster: '🐹',
+    'guinea-pig': '🐹',
+    ferret: '🦡',
+    turtle: '🐢',
+    fish: '🐟',
+    snake: '🐍',
+    lizard: '🦎',
+    hedgehog: '🦔',
+    exotic: '🦝'
+};
+
 export default function Dashboard() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
@@ -90,6 +124,8 @@ export default function Dashboard() {
     const [totalMatchesCount, setTotalMatchesCount] = useState(0);
     const { listings } = useListing();
     const [userListingsCount, setUserListingsCount] = useState(0);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     // Okunmamış ve yeni mesajları hesapla
     const unreadMessages = conversations.reduce((count, conversation) => {
@@ -650,6 +686,22 @@ export default function Dashboard() {
         }
     }, [user, listings]);
 
+    const handleDeletePet = async () => {
+        if (!user || !selectedPetId) return;
+        setDeleting(true);
+        try {
+            const db = getDatabase();
+            const petRef = dbRef(db, `pets/${user.uid}/${selectedPetId}`);
+            await remove(petRef);
+            toast.success('Evcil hayvan başarıyla silindi!');
+            setShowDeleteModal(false);
+            setDeleting(false);
+        } catch (error) {
+            toast.error('Silme işlemi sırasında bir hata oluştu!');
+            setDeleting(false);
+        }
+    };
+
     if (authLoading || isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -1162,7 +1214,7 @@ export default function Dashboard() {
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-4xl">
-                                                            {activePet.type === 'dog' ? '🐕' : activePet.type === 'cat' ? '🐈' : activePet.type === 'rabbit' ? '🐇' : '🦜'}
+                                                            {(activePet.type && Object.prototype.hasOwnProperty.call(typeEmojiMap, activePet.type)) ? typeEmojiMap[activePet.type as keyof typeof typeEmojiMap] : '🐾'}
                                                         </div>
                                                     )}
                                                 </div>
@@ -1176,7 +1228,7 @@ export default function Dashboard() {
                                             </div>
                                             <h4 className="text-2xl font-bold text-gray-900 mb-1">{activePet.name}</h4>
                                             <p className="text-sm text-gray-500 mb-4">
-                                                {activePet.type === 'dog' ? 'Köpek' : activePet.type === 'cat' ? 'Kedi' : activePet.type === 'rabbit' ? 'Tavşan' : 'Kuş'} • {activePet.breed}
+                                                {(activePet.type && Object.prototype.hasOwnProperty.call(typeMap, activePet.type)) ? typeMap[activePet.type as keyof typeof typeMap] : activePet.type} • {activePet.breed}
                                             </p>
                                         </div>
 
@@ -1525,6 +1577,31 @@ export default function Dashboard() {
                     background: #a5b4fc;
                 }
             `}</style>
+
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Evcil Hayvanı Sil</h3>
+                        <p className="text-gray-600 mb-6">Bu işlemi geri alamazsınız. Emin misiniz?</p>
+                        <div className="flex gap-4 justify-end">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                                disabled={deleting}
+                            >
+                                Vazgeç
+                            </button>
+                            <button
+                                onClick={handleDeletePet}
+                                className={`px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors ${deleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={deleting}
+                            >
+                                {deleting ? 'Siliniyor...' : 'Evet, Sil'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

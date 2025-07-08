@@ -8,7 +8,9 @@ import {
     signOut,
     onAuthStateChanged,
     User as FirebaseUser,
-    UserCredential
+    UserCredential,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { getDatabase, ref, set, get } from 'firebase/database';
@@ -31,6 +33,7 @@ interface AuthContextType {
     registerBusiness: (email: string, password: string, businessData: any) => Promise<{ user: FirebaseUser }>;
     logout: () => Promise<void>;
     isBusinessUser: () => boolean;
+    signInWithGoogle: () => Promise<UserCredential>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -42,6 +45,7 @@ const AuthContext = createContext<AuthContextType>({
     registerBusiness: async () => ({ user: null as any }),
     logout: async () => { },
     isBusinessUser: () => false,
+    signInWithGoogle: async () => { return { user: null as any } as UserCredential; },
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -185,6 +189,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return currentType === 'business';
     };
 
+    // Google ile giriş
+    const signInWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        return await signInWithPopup(auth, provider);
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -194,7 +204,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             signIn,
             registerBusiness,
             logout,
-            isBusinessUser
+            isBusinessUser,
+            signInWithGoogle
         }}>
             {children}
         </AuthContext.Provider>
