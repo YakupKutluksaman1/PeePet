@@ -11,6 +11,7 @@ export interface Message {
     readBy?: {
         [userId: string]: boolean;
     };
+    imageUrl?: string; // Mesajda fotoğraf varsa, fotoğrafın URL'si
 }
 
 export interface Conversation {

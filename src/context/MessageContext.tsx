@@ -12,7 +12,7 @@ interface MessageContextType {
     loading: boolean;
     error: string | null;
     createMessage: (listingId: string, ownerId: string, content: string) => Promise<void>;
-    sendMessage: (conversationId: string, content: string, petId?: string, isRead?: boolean) => Promise<void>;
+    sendMessage: (conversationId: string, content: string, petId?: string, imageUrl?: string, isRead?: boolean) => Promise<void>;
     acceptMessage: (messageCreatedAt: string, conversationId: string) => Promise<void>;
     rejectMessage: (messageCreatedAt: string, conversationId: string) => Promise<void>;
     deleteConversation: (conversationId: string) => Promise<void>;
@@ -199,7 +199,7 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const sendMessage = async (conversationId: string, content: string, petId?: string, isRead?: boolean) => {
+    const sendMessage = async (conversationId: string, content: string, petId?: string, imageUrl?: string, isRead?: boolean) => {
         if (!user) {
             toast.error('Mesaj göndermek için giriş yapmalısınız');
             return;
@@ -227,7 +227,8 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
                 isRead: isRead ?? false,
                 readBy: {
                     [user.uid]: true
-                }
+                },
+                imageUrl // Fotoğraf varsa ekle, yoksa undefined olur
             };
 
             await set(newMessageRef, message);

@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { getDatabase, ref, onValue, get, update } from 'firebase/database';
 import { Message } from '@/types/message';
+import { storage } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Message interface artık isRead alanını içerdiği için bu interface'e gerek kalmadı
 // interface MessageWithReadStatus extends Message {
@@ -92,6 +94,10 @@ export default function MessagesPage() {
     const mounted = useRef(false);
     // Okunma durumu ile birlikte mesajları tutan state
     const [messages, setMessages] = useState<{ [key: string]: Message[] }>({});
+    // Fotoğraf gönderme için state
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    // Fotoğraf yüklenirken butonu disable etmek için loading state
+    const [sending, setSending] = useState(false);
 
     // Tip tanımlamaları
     interface PetData {
@@ -369,40 +375,56 @@ export default function MessagesPage() {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !selectedConversation || !user) return;
+        if (!newMessage.trim() && !imageFile) return;
+        if (!selectedConversation || !user) return;
 
-        const conversation = conversations.find(c => c.id === selectedConversation);
-        if (!conversation) return;
+        setSending(true);
+        let imageUrl: string | undefined = undefined;
 
-        // Mesajı gönderen kullanıcının evcil hayvan bilgisini al
-        let petId = "";
-
-        // userMatchDetails'dan evcil hayvan bilgisini almaya çalış
-        if (conversation.userMatchDetails && conversation.userMatchDetails[user.uid]) {
-            petId = conversation.userMatchDetails[user.uid].petId || "";
-        }
-        // Alternatif olarak petInfo'dan kontrol et
-        else if (conversation.petInfo && conversation.petInfo[user.uid]) {
-            // id alanı yerine hayvanın ID'sini doğrudan alıyoruz veya boş string kullanıyoruz
-            // Hayvan ID'si petInfo altında saklanmalı veya veritabanından getirilmeli
-            const db = getDatabase();
-            const userPetsRef = ref(db, `userPets/${user.uid}`);
-            try {
-                const snapshot = await get(userPetsRef);
-                if (snapshot.exists()) {
-                    const userPets = snapshot.val();
-                    // Kullanıcının aktif evcil hayvanını veya ilk evcil hayvanını al
-                    const activePetId = userPets.activePetId || Object.keys(userPets.pets)[0] || "";
-                    petId = activePetId;
-                }
-            } catch (error) {
-                console.error('Evcil hayvan bilgisi alınırken hata:', error);
+        try {
+            // Eğer fotoğraf seçildiyse önce Storage'a yükle
+            if (imageFile) {
+                const fileName = `${user.uid}_${Date.now()}_${imageFile.name}`;
+                const imgRef = storageRef(storage, `message-images/${fileName}`);
+                await uploadBytes(imgRef, imageFile);
+                imageUrl = await getDownloadURL(imgRef);
             }
-        }
 
-        // Yeni mesajı alıcıya okunmamış olarak gönder
-        await sendMessage(selectedConversation, newMessage, petId);
-        setNewMessage('');
+            const conversation = conversations.find(c => c.id === selectedConversation);
+            if (!conversation) return;
+
+            // Mesajı gönderen kullanıcının evcil hayvan bilgisini al
+            let petId = "";
+
+            // userMatchDetails'dan evcil hayvan bilgisini almaya çalış
+            if (conversation.userMatchDetails && conversation.userMatchDetails[user.uid]) {
+                petId = conversation.userMatchDetails[user.uid].petId || "";
+            }
+            // Alternatif olarak petInfo'dan kontrol et
+            else if (conversation.petInfo && conversation.petInfo[user.uid]) {
+                const db = getDatabase();
+                const userPetsRef = ref(db, `userPets/${user.uid}`);
+                try {
+                    const snapshot = await get(userPetsRef);
+                    if (snapshot.exists()) {
+                        const userPets = snapshot.val();
+                        const activePetId = userPets.activePetId || Object.keys(userPets.pets)[0] || "";
+                        petId = activePetId;
+                    }
+                } catch (error) {
+                    console.error('Evcil hayvan bilgisi alınırken hata:', error);
+                }
+            }
+
+            // Yeni mesajı alıcıya okunmamış olarak gönder
+            await sendMessage(selectedConversation, newMessage, petId, imageUrl);
+            setNewMessage('');
+            setImageFile(null);
+        } catch (error) {
+            console.error('Mesaj gönderilirken hata:', error);
+        } finally {
+            setSending(false);
+        }
     };
 
     const handleAcceptMessage = async (conversationId: string) => {
@@ -1253,6 +1275,16 @@ export default function MessagesPage() {
                                                                             </span>
                                                                         </div>
                                                                     )}
+                                                                    {/* Fotoğraf mesajı */}
+                                                                    {message.imageUrl && (
+                                                                        <div className="mb-2">
+                                                                            <img
+                                                                                src={message.imageUrl}
+                                                                                alt="Gönderilen fotoğraf"
+                                                                                className="max-h-48 rounded-lg border border-gray-200 object-contain"
+                                                                            />
+                                                                        </div>
+                                                                    )}
                                                                     <p className="text-sm">{message.content}</p>
                                                                     <div className="flex justify-between items-center mt-1">
                                                                         <p className="text-xs opacity-70">
@@ -1289,7 +1321,7 @@ export default function MessagesPage() {
                                     {/* Mesaj Formu - Sabit Alt Kısım */}
                                     {conversation?.status === 'active' && (
                                         <div className="flex-shrink-0 p-6 border-t border-gray-200/50 backdrop-blur-sm bg-white/50">
-                                            <form onSubmit={handleSendMessage} className="flex gap-3">
+                                            <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
                                                 <input
                                                     type="text"
                                                     value={newMessage}
@@ -1297,10 +1329,23 @@ export default function MessagesPage() {
                                                     placeholder="Mesajınızı yazın..."
                                                     className="flex-1 px-6 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                                                 />
+                                                {/* Fotoğraf seçme alanı */}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={e => {
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            setImageFile(e.target.files[0]);
+                                                        } else {
+                                                            setImageFile(null);
+                                                        }
+                                                    }}
+                                                    className="block w-32 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                                />
                                                 <button
                                                     type="submit"
                                                     className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    disabled={!newMessage.trim()}
+                                                    disabled={sending || (!newMessage.trim() && !imageFile)}
                                                 >
                                                     Gönder
                                                 </button>
