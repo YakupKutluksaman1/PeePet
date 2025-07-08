@@ -362,7 +362,7 @@ const MatchPage = () => {
     const renderMap = () => {
         if (locationError) {
             return (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm p-6 min-h-[300px] sm:min-h-0">
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm p-6 h-full min-h-screen sm:min-h-0 sm:h-auto">
                     <div className="max-w-lg mx-auto text-center">
                         <div className="bg-amber-50 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -387,7 +387,7 @@ const MatchPage = () => {
 
         if (!mapReady || !userLocation || !defaultIcon) {
             return (
-                <div className="absolute inset-0 flex items-center justify-center bg-indigo-100 min-h-[300px] sm:min-h-0">
+                <div className="absolute inset-0 flex items-center justify-center bg-indigo-100 h-full min-h-screen sm:min-h-0 sm:h-auto">
                     <div className="text-center">
                         <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-indigo-600 font-medium">Harita Yükleniyor...</p>
@@ -397,7 +397,7 @@ const MatchPage = () => {
         }
 
         return (
-            <div className="absolute inset-0 z-10 h-[300px] min-h-[300px] sm:h-auto sm:min-h-0 md:h-auto md:min-h-0 lg:h-auto lg:min-h-0">
+            <div className="absolute inset-0 z-10 h-full min-h-screen sm:h-auto sm:min-h-0 md:h-auto md:min-h-0 lg:h-auto lg:min-h-0">
                 <MapWithNoSSR
                     key={mapKey}
                     center={userLocation}
@@ -550,7 +550,7 @@ const MatchPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-50 relative overflow-hidden">
+        <div className="min-h-screen h-screen flex flex-col bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-50 relative overflow-hidden">
             {/* Uyarı Modal */}
             {showNoPetsWarning && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999]">
@@ -670,7 +670,7 @@ const MatchPage = () => {
             </div>
 
             {/* Orta Kısım: Harita Alanı */}
-            <div className="flex-1 relative min-h-[300px] sm:min-h-0">
+            <div className="flex-1 relative h-full min-h-screen sm:min-h-0">
                 {renderMap()}
                 {/* Mobilde sağ alt köşede filtre butonu */}
                 <button
