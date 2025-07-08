@@ -215,7 +215,8 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Mesaj ID oluşturulamadı');
             }
 
-            const message: Message = {
+            // imageUrl undefined ise objeye ekleme
+            const message: any = {
                 id: messageId,
                 conversationId,
                 senderId: user.uid,
@@ -227,9 +228,11 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
                 isRead: isRead ?? false,
                 readBy: {
                     [user.uid]: true
-                },
-                imageUrl // Fotoğraf varsa ekle, yoksa undefined olur
+                }
             };
+            if (imageUrl) {
+                message.imageUrl = imageUrl;
+            }
 
             await set(newMessageRef, message);
 

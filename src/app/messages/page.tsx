@@ -98,6 +98,8 @@ export default function MessagesPage() {
     const [imageFile, setImageFile] = useState<File | null>(null);
     // Fotoğraf yüklenirken butonu disable etmek için loading state
     const [sending, setSending] = useState(false);
+    // Fotoğraf büyütme için modal state
+    const [openedImageUrl, setOpenedImageUrl] = useState<string | null>(null);
 
     // Tip tanımlamaları
     interface PetData {
@@ -1281,7 +1283,8 @@ export default function MessagesPage() {
                                                                             <img
                                                                                 src={message.imageUrl}
                                                                                 alt="Gönderilen fotoğraf"
-                                                                                className="max-h-48 rounded-lg border border-gray-200 object-contain"
+                                                                                className="max-h-48 rounded-lg border border-gray-200 object-contain cursor-pointer transition-transform hover:scale-105"
+                                                                                onClick={() => setOpenedImageUrl(message.imageUrl!)}
                                                                             />
                                                                         </div>
                                                                     )}
@@ -1321,13 +1324,13 @@ export default function MessagesPage() {
                                     {/* Mesaj Formu - Sabit Alt Kısım */}
                                     {conversation?.status === 'active' && (
                                         <div className="flex-shrink-0 p-6 border-t border-gray-200/50 backdrop-blur-sm bg-white/50">
-                                            <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
+                                            <form onSubmit={handleSendMessage} className="flex flex-col sm:flex-row gap-2 items-stretch">
                                                 <input
                                                     type="text"
                                                     value={newMessage}
                                                     onChange={(e) => setNewMessage(e.target.value)}
                                                     placeholder="Mesajınızı yazın..."
-                                                    className="flex-1 px-6 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                    className="flex-1 px-6 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 min-w-0"
                                                 />
                                                 {/* Fotoğraf seçme alanı */}
                                                 <input
@@ -1340,11 +1343,11 @@ export default function MessagesPage() {
                                                             setImageFile(null);
                                                         }
                                                     }}
-                                                    className="block w-32 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                                    className="flex-shrink-0 w-auto file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 min-w-0"
                                                 />
                                                 <button
                                                     type="submit"
-                                                    className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="flex-shrink-0 px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                                                     disabled={sending || (!newMessage.trim() && !imageFile)}
                                                 >
                                                     Gönder
@@ -1400,6 +1403,26 @@ export default function MessagesPage() {
                             </button>
                         </div>
                     </motion.div>
+                </div>
+            )}
+
+            {/* Fotoğraf Büyütme Modalı */}
+            {openedImageUrl && (
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70" onClick={() => setOpenedImageUrl(null)}>
+                    <div className="relative max-w-3xl w-full mx-4" onClick={e => e.stopPropagation()}>
+                        <img
+                            src={openedImageUrl}
+                            alt="Büyük fotoğraf"
+                            className="w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border-4 border-white"
+                        />
+                        <button
+                            onClick={() => setOpenedImageUrl(null)}
+                            className="absolute top-2 right-2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg text-xl"
+                            aria-label="Kapat"
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
