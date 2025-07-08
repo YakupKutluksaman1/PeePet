@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withPWA from 'next-pwa';
 
 const nextConfig: NextConfig = {
   eslint: {
@@ -11,4 +12,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA({
+  ...nextConfig,
+  pwa: {
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+  },
+});

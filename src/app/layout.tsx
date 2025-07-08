@@ -7,6 +7,7 @@ import { PetProvider } from "@/context/PetContext";
 import { MessageProvider } from "@/context/MessageContext";
 import { Toaster } from 'react-hot-toast'
 import { BusinessListingProvider } from '@/context/BusinessListingContext';
+import Head from 'next/head';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -68,6 +69,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#6c5ce7" />
+      </Head>
       <body className={inter.className}>
         <AuthProvider>
           <PetProvider>
