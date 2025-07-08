@@ -360,7 +360,7 @@ const MatchPage = () => {
     const renderMap = () => {
         if (locationError) {
             return (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm p-6">
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm p-6 min-h-[300px] sm:min-h-0">
                     <div className="max-w-lg mx-auto text-center">
                         <div className="bg-amber-50 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -385,7 +385,7 @@ const MatchPage = () => {
 
         if (!mapReady || !userLocation || !defaultIcon) {
             return (
-                <div className="absolute inset-0 flex items-center justify-center bg-indigo-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-indigo-100 min-h-[300px] sm:min-h-0">
                     <div className="text-center">
                         <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-indigo-600 font-medium">Harita Yükleniyor...</p>
@@ -395,7 +395,7 @@ const MatchPage = () => {
         }
 
         return (
-            <div className="absolute inset-0 z-10">
+            <div className="absolute inset-0 z-10 h-[300px] min-h-[300px] sm:h-auto sm:min-h-0 md:h-auto md:min-h-0 lg:h-auto lg:min-h-0">
                 <MapWithNoSSR
                     key={mapKey}
                     center={userLocation}
@@ -594,7 +594,7 @@ const MatchPage = () => {
             </div>
 
             {/* Üst Kısım: Başlık ve Navigasyon */}
-            <div className="bg-white/95 backdrop-blur-md shadow-lg py-4 px-4 sm:px-6 sticky top-0 z-10">
+            <div className="bg-white/95 backdrop-blur-md shadow-lg py-2 px-2 sm:py-4 sm:px-4 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <button
@@ -668,12 +668,12 @@ const MatchPage = () => {
             </div>
 
             {/* Orta Kısım: Harita Alanı */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-[300px] sm:min-h-0">
                 {renderMap()}
             </div>
 
             {/* Alt Kısım: Filtre Paneli */}
-            <div className="bg-white/95 backdrop-blur-md shadow-lg py-6 px-4 sm:px-6 border-t border-gray-100 relative z-10">
+            <div className="bg-white/95 backdrop-blur-md shadow-lg py-4 px-2 sm:py-6 sm:px-6 border-t border-gray-100 relative z-10">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
