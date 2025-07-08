@@ -1,4 +1,4 @@
-import withPWA from 'next-pwa';
+const withPWA = require('next-pwa');
 
 const nextConfig = {
   eslint: {
@@ -14,4 +14,4 @@ const nextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+module.exports = withPWA(nextConfig);
