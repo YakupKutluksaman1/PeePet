@@ -9,6 +9,7 @@ import { generateNearbyPets, NearbyPet } from './components/PetData';
 import PetDetailCard from './components/PetDetailCard';
 import { getDatabase, ref as dbRef, update, get, onValue } from 'firebase/database';
 import { Pet, UserPets } from '@/types/pet';
+import { Fragment } from 'react';
 
 // Leaflet bileşenleri SSR'de çalışmadığı için dynamic import kullanıyoruz
 const MapWithNoSSR = dynamic(
@@ -47,6 +48,7 @@ const MatchPage = () => {
     const [showAllPets, setShowAllPets] = useState<boolean>(true);
     const [showAllLocations, setShowAllLocations] = useState<boolean>(false);
     const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
+    const [isFilterOpen, setIsFilterOpen] = useState(false); // Mobil filtre modalı için
 
     // Kullanıcının evcil hayvanları
     const [userPets, setUserPets] = useState<UserPets>({});
@@ -670,10 +672,20 @@ const MatchPage = () => {
             {/* Orta Kısım: Harita Alanı */}
             <div className="flex-1 relative min-h-[300px] sm:min-h-0">
                 {renderMap()}
+                {/* Mobilde sağ alt köşede filtre butonu */}
+                <button
+                    className="fixed bottom-5 right-5 z-[100] flex sm:hidden items-center gap-2 px-5 py-3 rounded-full bg-indigo-600 text-white shadow-lg text-base font-semibold hover:bg-indigo-700 transition-all"
+                    onClick={() => setIsFilterOpen(true)}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filtrele
+                </button>
             </div>
 
-            {/* Alt Kısım: Filtre Paneli */}
-            <div className="bg-white/95 backdrop-blur-md shadow-lg py-4 px-2 sm:py-6 sm:px-6 border-t border-gray-100 relative z-10">
+            {/* Alt Kısım: Filtre Paneli - SADECE MASAÜSTÜNDE */}
+            <div className="hidden sm:block bg-white/95 backdrop-blur-md shadow-lg py-4 px-2 sm:py-6 sm:px-6 border-t border-gray-100 relative z-10">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
@@ -798,6 +810,118 @@ const MatchPage = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Mobil Filtre Modalı */}
+            {isFilterOpen && (
+                <div className="fixed inset-0 z-[200] flex items-end sm:hidden">
+                    <div className="absolute inset-0 bg-black/40" onClick={() => setIsFilterOpen(false)}></div>
+                    <div className="relative w-full bg-white rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto animate-[slide-up_0.3s_ease] p-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Filtreler
+                            </h2>
+                            <button
+                                className="text-gray-500 hover:text-indigo-600 text-2xl font-bold px-2"
+                                onClick={() => setIsFilterOpen(false)}
+                                aria-label="Kapat"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        {/* --- FİLTRE PANELİ KODUNU BURAYA TAŞIYORUZ --- */}
+                        <div className="space-y-8">
+                            {/* Mesafe Filtresi */}
+                            <div className={`${showAllLocations ? 'opacity-50 pointer-events-none' : ''}`}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Mesafe {showAllLocations && <span className="text-xs text-orange-600">(Tüm Dünya modunda devre dışı)</span>}
+                                    </label>
+                                    <span className="text-sm text-indigo-600 font-medium">{showAllLocations ? '∞' : `${activeFilters.distance} km`}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="50"
+                                    value={activeFilters.distance}
+                                    onChange={(e) => setActiveFilters({ ...activeFilters, distance: parseInt(e.target.value) })}
+                                    disabled={showAllLocations}
+                                    className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 hover:accent-indigo-700 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>1 km</span>
+                                    <span>25 km</span>
+                                    <span>50 km</span>
+                                </div>
+                            </div>
+                            {/* Hayvan Türü Filtreleri */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">Hayvan Türü</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {[{ id: 'dog', label: '🐕 Köpek' }, { id: 'cat', label: '🐈 Kedi' }, { id: 'bird', label: '🦜 Kuş' }, { id: 'rabbit', label: '🐇 Tavşan' }, { id: 'other', label: '🐾 Diğer' }].map((type) => (
+                                        <button
+                                            key={type.id}
+                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 ${activeFilters.petTypes.includes(type.id)
+                                                ? 'bg-indigo-100 text-indigo-800 border-2 border-indigo-300 shadow-sm hover:bg-indigo-200'
+                                                : 'bg-gray-50 text-gray-700 border-2 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                                                }`}
+                                            onClick={() => {
+                                                const newPetTypes = activeFilters.petTypes.includes(type.id)
+                                                    ? activeFilters.petTypes.filter(t => t !== type.id)
+                                                    : [...activeFilters.petTypes, type.id];
+                                                setActiveFilters({ ...activeFilters, petTypes: newPetTypes });
+                                            }}
+                                        >
+                                            {type.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Cinsiyet Filtresi */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">Cinsiyet</label>
+                                <div className="flex gap-2">
+                                    {[{ id: 'all', label: 'Hepsi' }, { id: 'male', label: 'Erkek ♂️' }, { id: 'female', label: 'Dişi ♀️' }].map((gender) => (
+                                        <button
+                                            key={gender.id}
+                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 ${activeFilters.gender === gender.id
+                                                ? 'bg-indigo-100 text-indigo-800 border-2 border-indigo-300 shadow-sm hover:bg-indigo-200'
+                                                : 'bg-gray-50 text-gray-700 border-2 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                                                }`}
+                                            onClick={() => setActiveFilters({ ...activeFilters, gender: gender.id })}
+                                        >
+                                            {gender.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Filtre Uygulama ve Sıfırlama Butonları */}
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => { applyFilters(); setIsFilterOpen(false); }}
+                                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    Filtreleri Uygula
+                                </button>
+                                <button
+                                    className="w-full text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-all duration-300 flex items-center justify-center gap-1 hover:scale-105"
+                                    onClick={() => { resetFilters(); setIsFilterOpen(false); }}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Sıfırla
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Evcil hayvan detay kartı - Haritanın dışında render edilir */}
             {selectedPet && (
