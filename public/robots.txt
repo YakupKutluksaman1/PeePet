@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://peepet.com
+Host: https://peepet.com.tr
 
 # Sitemaps
-Sitemap: https://peepet.com/sitemap.xml
+Sitemap: https://peepet.com.tr/sitemap.xml
