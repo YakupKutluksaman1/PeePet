@@ -1,3 +1,9 @@
+# *
 User-agent: *
 Allow: /
-Sitemap: https://peepet.com/sitemap.xml 
+
+# Host
+Host: https://peepet.com
+
+# Sitemaps
+Sitemap: https://peepet.com/sitemap.xml
