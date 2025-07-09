@@ -617,8 +617,17 @@ const MatchPage = () => {
                     </div>
 
                     <div className="flex flex-row gap-2 mt-3 sm:mt-0 sm:gap-3 overflow-x-auto pb-1">
+                        {/* Sadece dost sayısı mobilde üstte gösterilecek, butonlar filtreye taşınacak */}
+                        <div className="px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full text-sm font-medium text-indigo-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-300">
+                            <span className="text-indigo-600 font-bold">{filteredPets.length}</span>
+                            <span className="hidden sm:inline">
+                                {showAllLocations ? 'dünyadan dost bulundu' : 'minik dost bulundu'}
+                            </span>
+                            <span className="sm:hidden">dost</span>
+                        </div>
+                        {/* Masaüstünde butonlar burada kalacak */}
                         {user && userLocation && (
-                            <>
+                            <div className="hidden sm:flex flex-row gap-2">
                                 <button
                                     onClick={() => {
                                         setShowAllPets(!showAllPets);
@@ -656,15 +665,8 @@ const MatchPage = () => {
                                     <span className={`block w-2 h-2 rounded-full ${userActiveStatus ? 'bg-green-500' : 'bg-red-500'}`}></span>
                                     {userActiveStatus ? 'Konum Açık' : 'Konum Kapalı'}
                                 </button>
-                            </>
+                            </div>
                         )}
-                        <div className="px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full text-sm font-medium text-indigo-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-300">
-                            <span className="text-indigo-600 font-bold">{filteredPets.length}</span>
-                            <span className="hidden sm:inline">
-                                {showAllLocations ? 'dünyadan dost bulundu' : 'minik dost bulundu'}
-                            </span>
-                            <span className="sm:hidden">dost</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -847,6 +849,48 @@ const MatchPage = () => {
                             </button>
                         </div>
                         {/* --- FİLTRE PANELİ KODUNU BURAYA TAŞIYORUZ --- */}
+                        {/* Mobilde üstteki butonlar filtre paneline taşındı */}
+                        {user && userLocation && (
+                            <div className="flex flex-row gap-2 mb-4">
+                                <button
+                                    onClick={() => {
+                                        setShowAllPets(!showAllPets);
+                                        setTimeout(() => refreshMapData(), 100);
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 ${showAllPets
+                                        ? 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    <span className={`block w-2 h-2 rounded-full ${showAllPets ? 'bg-purple-500' : 'bg-gray-400'}`}></span>
+                                    {showAllPets ? 'Tüm Hayvanlar' : 'Aktif Hayvan'}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowAllLocations(!showAllLocations);
+                                        setTimeout(() => refreshMapData(), 100);
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 ${showAllLocations
+                                        ? 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    <span className={`block w-2 h-2 rounded-full ${showAllLocations ? 'bg-orange-500' : 'bg-gray-400'}`}></span>
+                                    {showAllLocations ? 'Tüm Dünya' : 'Yakınımdaki'}
+                                </button>
+                                <button
+                                    onClick={() => toggleLocationSharing(!userActiveStatus)}
+                                    disabled={updatingStatus}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 ${userActiveStatus
+                                        ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                                        : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                        }`}
+                                >
+                                    <span className={`block w-2 h-2 rounded-full ${userActiveStatus ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                    {userActiveStatus ? 'Konum Açık' : 'Konum Kapalı'}
+                                </button>
+                            </div>
+                        )}
                         <div className="space-y-8">
                             {/* Mesafe Filtresi */}
                             <div className={`${showAllLocations ? 'opacity-50 pointer-events-none' : ''}`}>
