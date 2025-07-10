@@ -31,7 +31,7 @@ export default function VetPage() {
     const [loading, setLoading] = useState(true);
     const [showAddVisitModal, setShowAddVisitModal] = useState(false);
     const [showAddVaccinationModal, setShowAddVaccinationModal] = useState(false);
-    const [activeTab, setActiveTab] = useState<'visits' | 'vaccinations' | 'health'>('visits');
+    const [activeTab, setActiveTab] = useState<'visits' | 'vaccinations' | 'health' | 'ai'>('visits');
     const [isEditingAllergies, setIsEditingAllergies] = useState(false);
     const [isEditingConditions, setIsEditingConditions] = useState(false);
     const [newAllergy, setNewAllergy] = useState('');
@@ -39,6 +39,12 @@ export default function VetPage() {
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
     const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
     const [vaccinationToDelete, setVaccinationToDelete] = useState<string | null>(null);
+
+    const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([
+        { role: 'assistant', content: 'Merhaba! Ben sağlık asistanınızım. Evcil hayvanınızın sağlık geçmişiyle ilgili sorularınızı yanıtlayabilirim.' }
+    ]);
+    const [chatInput, setChatInput] = useState('');
+    const [chatLoading, setChatLoading] = useState(false);
 
     // Daha önce oluşturulmuş bir unsubscribe fonksiyonu varsa saklamak için ref kullanıyoruz
     const vetUnsubscribeRef = useRef<(() => void) | null>(null);
@@ -482,6 +488,39 @@ export default function VetPage() {
         }
     };
 
+    const handleChatSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!chatInput.trim()) return;
+        const userMsg = chatInput.trim();
+        setChatMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+        setChatInput('');
+        setChatLoading(true);
+        try {
+            const res = await fetch('/api/vet-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMsg, vetRecord })
+            });
+            const data = await res.json();
+            if (data.reply) {
+                setChatMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+            } else {
+                setChatMessages(prev => [...prev, { role: 'assistant', content: 'Bir hata oluştu, lütfen tekrar deneyin.' }]);
+            }
+        } catch (err) {
+            setChatMessages(prev => [...prev, { role: 'assistant', content: 'Bir hata oluştu, lütfen tekrar deneyin.' }]);
+        }
+        setChatLoading(false);
+    };
+
+    // useRef ve useEffect sadece bir kez tanımlanmalı
+    const chatEndRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [chatMessages]);
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -626,6 +665,15 @@ export default function VetPage() {
                                         }`}
                                 >
                                     Sağlık Bilgileri
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('ai')}
+                                    className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium ${activeTab === 'ai'
+                                        ? 'text-indigo-700 border-b-2 border-indigo-700'
+                                        : 'text-gray-500 hover:text-gray-700'
+                                        }`}
+                                >
+                                    🤖 Yapay Zeka Asistanı
                                 </button>
                             </div>
                         </div>
@@ -843,6 +891,53 @@ export default function VetPage() {
                                         ) : (
                                             <p className="text-gray-500 text-sm">Kronik rahatsızlık yok</p>
                                         )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'ai' && (
+                                <div className="space-y-6">
+                                    <div className="bg-white rounded-xl p-4 shadow-md mt-6">
+                                        <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                            <span>🤖</span> Yapay Zeka Sağlık Asistanı
+                                        </h3>
+                                        <div className="flex flex-col h-96 max-h-[32rem] border rounded-lg overflow-hidden">
+                                            <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50" id="vet-chat-messages">
+                                                {chatMessages.map((msg, idx) => (
+                                                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                        <div className={`px-3 py-2 rounded-lg max-w-full sm:max-w-xs text-base sm:text-sm ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                                                            {msg.content
+                                                                .replace(/[-*•]/g, '') // madde işaretlerini kaldır
+                                                                .replace(/\n/g, ' ')   // satır sonlarını boşlukla değiştir
+                                                                .replace(/\s+/g, ' ')  // fazla boşlukları tek boşluğa indir
+                                                                .trim()
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div ref={chatEndRef} />
+                                            </div>
+                                            <form
+                                                className="flex border-t bg-white px-2 py-2 gap-2"
+                                                onSubmit={handleChatSubmit}
+                                            >
+                                                <input
+                                                    type="text"
+                                                    className="flex-1 px-3 py-3 text-base sm:text-sm outline-none rounded-md border border-gray-200"
+                                                    placeholder="Sağlıkla ilgili bir soru sor..."
+                                                    value={chatInput}
+                                                    onChange={e => setChatInput(e.target.value)}
+                                                    disabled={chatLoading}
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="px-4 py-3 sm:py-2 bg-indigo-600 text-white font-medium rounded-md disabled:opacity-50"
+                                                    disabled={chatLoading || !chatInput.trim()}
+                                                >
+                                                    Gönder
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             )}
