@@ -31,7 +31,7 @@ export default function VetPage() {
     const [loading, setLoading] = useState(true);
     const [showAddVisitModal, setShowAddVisitModal] = useState(false);
     const [showAddVaccinationModal, setShowAddVaccinationModal] = useState(false);
-    const [activeTab, setActiveTab] = useState<'visits' | 'vaccinations' | 'health' | 'ai'>('visits');
+    const [activeTab, setActiveTab] = useState<'visits' | 'vaccinations' | 'health'>('visits');
     const [isEditingAllergies, setIsEditingAllergies] = useState(false);
     const [isEditingConditions, setIsEditingConditions] = useState(false);
     const [newAllergy, setNewAllergy] = useState('');
@@ -488,27 +488,50 @@ export default function VetPage() {
         }
     };
 
+    const [showChatModal, setShowChatModal] = useState(false);
+    // Her hayvan için ayrı chat geçmişi
+    const [petChats, setPetChats] = useState<{ [petId: string]: { role: 'user' | 'assistant'; content: string }[] }>({});
+    const currentChatMessages = petChats[selectedPetId] || [
+        { role: 'assistant', content: 'Merhaba! Ben sağlık asistanınızım. Evcil hayvanınızın sağlık geçmişiyle ilgili sorularınızı yanıtlayabilirim.' }
+    ];
+
+    // Chat mesajı ekleme fonksiyonu (son 6 mesaj tutulur)
+    const addChatMessage = (petId: string, msg: { role: 'user' | 'assistant'; content: string }) => {
+        setPetChats(prev => {
+            const prevMsgs = prev[petId] || [
+                { role: 'assistant', content: 'Merhaba! Ben sağlık asistanınızım. Evcil hayvanınızın sağlık geçmişiyle ilgili sorularınızı yanıtlayabilirim.' }
+            ];
+            const newMsgs = [...prevMsgs, msg].slice(-6);
+            return { ...prev, [petId]: newMsgs };
+        });
+    };
+
+    // Chat gönderme fonksiyonunu güncelle
     const handleChatSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!chatInput.trim()) return;
+        if (!chatInput.trim() || !selectedPetId) return;
         const userMsg = chatInput.trim();
-        setChatMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+        addChatMessage(selectedPetId, { role: 'user', content: userMsg });
         setChatInput('');
         setChatLoading(true);
         try {
             const res = await fetch('/api/vet-chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg, vetRecord })
+                body: JSON.stringify({
+                    userId: user?.uid,
+                    message: userMsg,
+                    vetRecord
+                })
             });
             const data = await res.json();
             if (data.reply) {
-                setChatMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+                addChatMessage(selectedPetId, { role: 'assistant', content: data.reply });
             } else {
-                setChatMessages(prev => [...prev, { role: 'assistant', content: 'Bir hata oluştu, lütfen tekrar deneyin.' }]);
+                addChatMessage(selectedPetId, { role: 'assistant', content: data.error || 'Bir hata oluştu, lütfen tekrar deneyin.' });
             }
         } catch (err) {
-            setChatMessages(prev => [...prev, { role: 'assistant', content: 'Bir hata oluştu, lütfen tekrar deneyin.' }]);
+            addChatMessage(selectedPetId, { role: 'assistant', content: 'Bir hata oluştu, lütfen tekrar deneyin.' });
         }
         setChatLoading(false);
     };
@@ -519,7 +542,7 @@ export default function VetPage() {
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [chatMessages]);
+    }, [currentChatMessages, showChatModal]);
 
     if (loading) {
         return (
@@ -665,15 +688,6 @@ export default function VetPage() {
                                         }`}
                                 >
                                     Sağlık Bilgileri
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('ai')}
-                                    className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium ${activeTab === 'ai'
-                                        ? 'text-indigo-700 border-b-2 border-indigo-700'
-                                        : 'text-gray-500 hover:text-gray-700'
-                                        }`}
-                                >
-                                    🤖 Yapay Zeka Asistanı
                                 </button>
                             </div>
                         </div>
@@ -894,53 +908,6 @@ export default function VetPage() {
                                     </div>
                                 </div>
                             )}
-
-                            {activeTab === 'ai' && (
-                                <div className="space-y-6">
-                                    <div className="bg-white rounded-xl p-4 shadow-md mt-6">
-                                        <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
-                                            <span>🤖</span> Yapay Zeka Sağlık Asistanı
-                                        </h3>
-                                        <div className="flex flex-col h-96 max-h-[32rem] border rounded-lg overflow-hidden">
-                                            <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50" id="vet-chat-messages">
-                                                {chatMessages.map((msg, idx) => (
-                                                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                        <div className={`px-3 py-2 rounded-lg max-w-full sm:max-w-xs text-base sm:text-sm ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-900'}`}>
-                                                            {msg.content
-                                                                .replace(/[-*•]/g, '') // madde işaretlerini kaldır
-                                                                .replace(/\n/g, ' ')   // satır sonlarını boşlukla değiştir
-                                                                .replace(/\s+/g, ' ')  // fazla boşlukları tek boşluğa indir
-                                                                .trim()
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                <div ref={chatEndRef} />
-                                            </div>
-                                            <form
-                                                className="flex border-t bg-white px-2 py-2 gap-2"
-                                                onSubmit={handleChatSubmit}
-                                            >
-                                                <input
-                                                    type="text"
-                                                    className="flex-1 px-3 py-3 text-base sm:text-sm outline-none rounded-md border border-gray-200"
-                                                    placeholder="Sağlıkla ilgili bir soru sor..."
-                                                    value={chatInput}
-                                                    onChange={e => setChatInput(e.target.value)}
-                                                    disabled={chatLoading}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    className="px-4 py-3 sm:py-2 bg-indigo-600 text-white font-medium rounded-md disabled:opacity-50"
-                                                    disabled={chatLoading || !chatInput.trim()}
-                                                >
-                                                    Gönder
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -999,6 +966,80 @@ export default function VetPage() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sağ alt köşede sabit robot ikonlu chat butonu */}
+            <button
+                className="fixed bottom-4 right-4 z-50 bg-indigo-600 text-white rounded-full p-4 shadow-lg focus:outline-none"
+                onClick={() => setShowChatModal(true)}
+                aria-label="Sohbeti Aç"
+                style={{ display: showChatModal ? 'none' : 'block' }}
+            >
+                <span className="text-2xl">🤖</span>
+            </button>
+
+            {/* Chat Modalı */}
+            {showChatModal && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white w-full sm:w-[400px] max-w-full h-[90vh] sm:h-[80vh] rounded-t-2xl sm:rounded-2xl shadow-lg flex flex-col">
+                        {/* Üstte kapatma ve evcil hayvan seçme alanı */}
+                        <div className="flex flex-col gap-1 p-3 border-b">
+                            <span className="text-sm font-semibold text-gray-700 mb-1">Minik dostunu seç</span>
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl">🐾</span>
+                                    <select
+                                        className="border rounded px-2 py-1 text-sm"
+                                        value={selectedPetId}
+                                        onChange={e => setSelectedPetId(e.target.value)}
+                                    >
+                                        {Object.entries(userPets).map(([petId, petData]: [string, any]) => (
+                                            <option key={petId} value={petId}>{petData?.name || 'İsimsiz Hayvan'}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <button onClick={() => setShowChatModal(false)} className="text-2xl px-2">&times;</button>
+                            </div>
+                        </div>
+                        {/* Chat kutusu */}
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50" id="vet-chat-messages">
+                            {currentChatMessages.map((msg, idx) => (
+                                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`px-3 py-2 rounded-lg max-w-full sm:max-w-xs text-base sm:text-sm ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                                        {msg.content
+                                            .replace(/[-*•]/g, '')
+                                            .replace(/\n/g, ' ')
+                                            .replace(/\s+/g, ' ')
+                                            .trim()
+                                        }
+                                    </div>
+                                </div>
+                            ))}
+                            <div ref={chatEndRef} />
+                        </div>
+                        {/* Input ve gönder butonu */}
+                        <form
+                            className="flex border-t bg-white px-2 py-2 gap-2"
+                            onSubmit={handleChatSubmit}
+                        >
+                            <input
+                                type="text"
+                                className="flex-1 px-3 py-3 text-base sm:text-sm outline-none rounded-md border border-gray-200"
+                                placeholder="Sağlıkla ilgili bir soru sor..."
+                                value={chatInput}
+                                onChange={e => setChatInput(e.target.value)}
+                                disabled={chatLoading}
+                            />
+                            <button
+                                type="submit"
+                                className="px-4 py-3 sm:py-2 bg-indigo-600 text-white font-medium rounded-md disabled:opacity-50"
+                                disabled={chatLoading || !chatInput.trim()}
+                            >
+                                Gönder
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}
