@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendFollowRequestNotification } from '@/lib/email';
-import { rdb } from '@/lib/firebase';
-import { ref, get } from 'firebase/database';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,11 +14,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const db = rdb;
+        const db = adminDb;
+        if (!db) {
+            return NextResponse.json(
+                { error: 'Firebase Admin SDK not initialized' },
+                { status: 500 }
+            );
+        }
 
         // Pet bilgilerini çek
-        const petRef = ref(db, `pets/${ownerUserId}/${petId}`);
-        const petSnapshot = await get(petRef);
+        const petSnapshot = await db.ref(`pets/${ownerUserId}/${petId}`).once('value');
 
         if (!petSnapshot.exists()) {
             return NextResponse.json(
@@ -31,8 +35,7 @@ export async function POST(request: NextRequest) {
         const petData = petSnapshot.val();
 
         // Sahip bilgilerini çek
-        const ownerRef = ref(db, `users/${ownerUserId}`);
-        const ownerSnapshot = await get(ownerRef);
+        const ownerSnapshot = await db.ref(`users/${ownerUserId}`).once('value');
 
         if (!ownerSnapshot.exists()) {
             return NextResponse.json(
@@ -44,8 +47,7 @@ export async function POST(request: NextRequest) {
         const ownerData = ownerSnapshot.val();
 
         // Takip isteği gönderen kullanıcı bilgilerini çek
-        const requesterRef = ref(db, `users/${requesterUserId}`);
-        const requesterSnapshot = await get(requesterRef);
+        const requesterSnapshot = await db.ref(`users/${requesterUserId}`).once('value');
 
         if (!requesterSnapshot.exists()) {
             return NextResponse.json(
