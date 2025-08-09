@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
 
                 // 4. Hala fotoğraf bulunamadıysa, varsayılan fotoğraf
                 if (!photoFound) {
-                    const placeholderUrl = `https://via.placeholder.com/300x300?text=${encodeURIComponent(pet.name || 'Pet')}`;
+                    const placeholderUrl = `https://placehold.co/300x300/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name || 'Pet')}`;
                     petInfo.profilePhoto = placeholderUrl;
                     petInfo.photos = [placeholderUrl];
 
@@ -225,7 +225,7 @@ export async function GET(request: NextRequest) {
                                     pet.type === 'bird' ? '🦜' :
                                         pet.type === 'rabbit' ? '🐇' : '🐾';
 
-                        petInfo.profilePhoto = `https://via.placeholder.com/300x300?text=${encodeURIComponent(pet.name + ' ' + typeEmoji)}`;
+                        petInfo.profilePhoto = `https://placehold.co/300x300/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name + ' ' + typeEmoji)}`;
                         petInfo.photos = [petInfo.profilePhoto];
                     }
                 }

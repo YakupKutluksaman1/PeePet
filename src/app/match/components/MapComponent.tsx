@@ -258,11 +258,11 @@ const MapComponent = ({
                             >
                                 <div className="w-16 h-16 rounded-full overflow-hidden mb-2 border-2 border-indigo-100">
                                     <img
-                                        src={pet.profilePhoto || (pet.photos && pet.photos[0]) || `https://via.placeholder.com/100?text=${encodeURIComponent(pet.name)}`}
+                                        src={pet.profilePhoto || (pet.photos && pet.photos[0]) || `https://placehold.co/100x100/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`}
                                         alt={pet.name}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/100?text=${encodeURIComponent(pet.name)}`;
+                                            (e.target as HTMLImageElement).src = `https://placehold.co/100x100/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`;
                                         }}
                                     />
                                 </div>

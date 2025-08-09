@@ -40,12 +40,12 @@ const PetMiniCard: React.FC<PetMiniCardProps> = ({ pet }) => {
             <div className="bg-white rounded-lg shadow-lg overflow-hidden min-w-[220px] max-w-[280px] transform transition-all duration-300 hover:scale-105">
                 <div className="relative h-32 w-full overflow-hidden">
                     <img
-                        src={pet.photos && pet.photos.length > 0 ? pet.photos[0] : `https://via.placeholder.com/300x300?text=${pet.name}`}
+                        src={pet.photos && pet.photos.length > 0 ? pet.photos[0] : `https://placehold.co/300x300/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`}
                         alt={pet.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                             // Resim yüklenemezse varsayılan bir resim göster
-                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/300x300?text=${pet.name}`;
+                            (e.target as HTMLImageElement).src = `https://placehold.co/300x300/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`;
                         }}
                     />
                     <div className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium text-gray-800 flex items-center">

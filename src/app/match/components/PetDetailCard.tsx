@@ -453,13 +453,13 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
                         ref={imageRef}
                         src={petPhotos && petPhotos.length > 0
                             ? petPhotos[currentPhotoIndex]
-                            : `https://via.placeholder.com/600x400?text=${pet.name}`}
+                            : `https://placehold.co/600x400/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`}
                         alt={pet.name}
                         className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                         onLoad={handleImageLoad}
                         onError={(e) => {
                             // Görüntü yüklenemezse isimle yer tutucu göster
-                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/600x400?text=${encodeURIComponent(pet.name)}`;
+                            (e.target as HTMLImageElement).src = `https://placehold.co/600x400/e5e7eb/9ca3af?text=${encodeURIComponent(pet.name)}`;
                             setIsLoading(false);
                         }}
                     />
