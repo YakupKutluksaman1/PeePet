@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendMatchRequestNotification } from '@/lib/email';
-import { rdb } from '@/lib/firebase';
-import { ref, get } from 'firebase/database';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,11 +14,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const db = rdb;
+        const db = adminDb;
+        if (!db) {
+            return NextResponse.json(
+                { error: 'Firebase Admin SDK not initialized' },
+                { status: 500 }
+            );
+        }
 
         // Hedef pet bilgilerini çek
-        const targetPetRef = ref(db, `pets/${ownerUserId}/${targetPetId}`);
-        const targetPetSnapshot = await get(targetPetRef);
+        const targetPetSnapshot = await db.ref(`pets/${ownerUserId}/${targetPetId}`).once('value');
 
         if (!targetPetSnapshot.exists()) {
             return NextResponse.json(
@@ -27,12 +31,10 @@ export async function POST(request: NextRequest) {
                 { status: 404 }
             );
         }
-
         const targetPetData = targetPetSnapshot.val();
 
         // Pet sahibi bilgilerini çek
-        const ownerRef = ref(db, `users/${ownerUserId}`);
-        const ownerSnapshot = await get(ownerRef);
+        const ownerSnapshot = await db.ref(`users/${ownerUserId}`).once('value');
 
         if (!ownerSnapshot.exists()) {
             return NextResponse.json(
@@ -40,12 +42,10 @@ export async function POST(request: NextRequest) {
                 { status: 404 }
             );
         }
-
         const ownerData = ownerSnapshot.val();
 
         // İstek gönderen kullanıcı bilgilerini çek
-        const requesterRef = ref(db, `users/${requesterUserId}`);
-        const requesterSnapshot = await get(requesterRef);
+        const requesterSnapshot = await db.ref(`users/${requesterUserId}`).once('value');
 
         if (!requesterSnapshot.exists()) {
             return NextResponse.json(
@@ -53,20 +53,17 @@ export async function POST(request: NextRequest) {
                 { status: 404 }
             );
         }
-
         const requesterData = requesterSnapshot.val();
 
         // İstek gönderen kullanıcının pet bilgilerini çek
-        const requesterPetRef = ref(db, `pets/${requesterUserId}/${requesterPetId}`);
-        const requesterPetSnapshot = await get(requesterPetRef);
+        const requesterPetSnapshot = await db.ref(`pets/${requesterUserId}/${requesterPetId}`).once('value');
 
         if (!requesterPetSnapshot.exists()) {
             return NextResponse.json(
-                { error: 'İstek gönderen kullanıcının peti bulunamadı' },
+                { error: 'İstek gönderen pet bulunamadı' },
                 { status: 404 }
             );
         }
-
         const requesterPetData = requesterPetSnapshot.val();
 
         // Email bilgilerini kontrol et

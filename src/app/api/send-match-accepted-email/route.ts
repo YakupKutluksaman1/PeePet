@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendMatchAcceptedNotification } from '@/lib/email';
-import { rdb } from '@/lib/firebase';
-import { ref, get } from 'firebase/database';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
     try {
