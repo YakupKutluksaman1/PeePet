@@ -275,6 +275,8 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
 
     // Eşleşme isteği gönderme fonksiyonu
     const sendFriendRequest = async () => {
+        console.log('🔥 Eşleş butonu tıklandı!', { user: !!user, petName: pet.name });
+        
         if (!user) {
             alert('Lütfen önce giriş yapın');
             return;
@@ -304,6 +306,7 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
             };
 
             await set(newMatchRef, matchData);
+            console.log('✅ Firebase match data kaydedildi');
 
             // Eşleşme isteği emaili gönder
             try {
@@ -331,7 +334,8 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
                 }
 
                 if (activePetId) {
-                    await fetch('/api/send-match-request-email', {
+                    console.log('📧 Email API çağrısı başlıyor...', { activePetId });
+                    const emailResponse = await fetch('/api/send-match-request-email', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -343,7 +347,14 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
                             requesterPetId: activePetId
                         }),
                     });
-                    console.log('Eşleşme isteği emaili gönderildi (PetDetailCard)');
+                    
+                    if (emailResponse.ok) {
+                        console.log('✅ Email başarıyla gönderildi');
+                    } else {
+                        console.error('❌ Email API hatası:', emailResponse.status, await emailResponse.text());
+                    }
+                } else {
+                    console.warn('⚠️ Aktif pet bulunamadı, email gönderilmedi');
                 }
             } catch (emailError) {
                 console.error('Eşleşme isteği emaili gönderilirken hata (PetDetailCard):', emailError);
@@ -351,8 +362,10 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
             }
 
             setShowFriendRequest(true);
+            console.log('🎉 Eşleşme isteği tamamlandı!');
+            
         } catch (error) {
-            console.error('Eşleşme isteği gönderilirken hata oluştu:', error);
+            console.error('❌ Eşleşme isteği gönderilirken hata oluştu:', error);
             alert('Eşleşme isteği gönderilemedi. Lütfen tekrar deneyin.');
         }
     };
