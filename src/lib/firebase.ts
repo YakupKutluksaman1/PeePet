@@ -23,4 +23,82 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const rdb = getDatabase(app);
 
-export { app }; 
+export { app };
+
+// Gönderi (post) ekleme ve çekme için yardımcı fonksiyonlar
+import { Post } from '@/types/post';
+import { ref as dbRef, push, set, get, onValue, DataSnapshot, query, orderByKey, limitToLast, endBefore } from 'firebase/database';
+
+// Realtime Database'e yeni bir gönderi ekle
+export async function addPostToDB(post: Omit<Post, 'id'>): Promise<string | null> {
+    try {
+        const postRef = dbRef(rdb, 'posts');
+        const newPostRef = push(postRef);
+        await set(newPostRef, post);
+        return newPostRef.key;
+    } catch (error) {
+        console.error('Gönderi eklenirken hata:', error);
+        return null;
+    }
+}
+
+// Tüm public gönderileri çek (eski - performans için kullanmayın)
+export async function getPublicPosts(): Promise<Post[]> {
+    try {
+        const postRef = dbRef(rdb, 'posts');
+        const snapshot = await get(postRef);
+        if (!snapshot.exists()) return [];
+        const postsObj = snapshot.val();
+        return Object.entries(postsObj).map(([id, data]: [string, any]) => ({
+            id,
+            ...data
+        })).filter((post: Post) => post.visibility === 'public');
+    } catch (error) {
+        console.error('Gönderiler çekilirken hata:', error);
+        return [];
+    }
+}
+
+// Sayfalanmış public gönderileri çek (performanslı)
+export async function getPaginatedPosts(limit = 20, lastPostKey: string | null = null): Promise<{ posts: Post[], lastKey: string | null, hasMore: boolean }> {
+    try {
+        const postRef = dbRef(rdb, 'posts');
+        let postsQuery;
+
+        if (lastPostKey) {
+            // Sonraki sayfa için
+            postsQuery = query(postRef, orderByKey(), endBefore(lastPostKey), limitToLast(limit));
+        } else {
+            // İlk sayfa için
+            postsQuery = query(postRef, orderByKey(), limitToLast(limit));
+        }
+
+        const snapshot = await get(postsQuery);
+        if (!snapshot.exists()) {
+            return { posts: [], lastKey: null, hasMore: false };
+        }
+
+        const postsObj = snapshot.val();
+        const postsArray = Object.entries(postsObj)
+            .map(([id, data]: [string, any]) => ({
+                id,
+                ...data
+            }))
+            .filter((post: Post) => post.visibility === 'public')
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        // Son key'i ve hasMore durumunu belirle
+        const keys = Object.keys(postsObj).sort();
+        const newLastKey = keys.length > 0 ? keys[0] : null;
+        const hasMore = postsArray.length === limit;
+
+        return {
+            posts: postsArray,
+            lastKey: newLastKey,
+            hasMore
+        };
+    } catch (error) {
+        console.error('Sayfalanmış gönderiler çekilirken hata:', error);
+        return { posts: [], lastKey: null, hasMore: false };
+    }
+} 

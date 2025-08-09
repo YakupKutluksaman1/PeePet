@@ -45,16 +45,13 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
 
                 // Pet'in fotoğraflarını kontrol et
                 if (pet.photos && pet.photos.length > 0) {
-                    console.log('Pet nesnesi fotoğrafları kullanılıyor:', pet.photos);
                     photos = [...pet.photos];
                 } else if (pet.profilePhoto) {
-                    console.log('Profil fotoğrafı kullanılıyor:', pet.profilePhoto);
                     photos = [pet.profilePhoto];
                 }
 
                 // Eğer geçerli bir foto yoksa, varsayılan oluştur
                 if (photos.length === 0 || photos.some(url => !url || url.includes('undefined'))) {
-                    console.log('Geçerli fotoğraf bulunamadı, varsayılan oluşturuluyor');
                     const placeholderUrl = `https://via.placeholder.com/400x400?text=${encodeURIComponent(pet.name)}`;
                     photos = [placeholderUrl];
                 }
@@ -66,12 +63,11 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
                     (url.startsWith('http') || url.startsWith('https') || url.startsWith('data:'))
                 );
 
-                console.log('Son fotoğraf listesi:', photos);
+
                 setPetPhotos(photos);
 
                 // Eğer pet.id test verisine aitse veya giriş yapmamışsa daha ileri gitme
                 if (pet.id.startsWith('pet-') || !user) {
-                    console.log('Test verisi veya oturum yok, diğer veri kaynaklarına bakılmıyor');
                     setIsLoading(false);
                     return;
                 }
@@ -308,6 +304,52 @@ const PetDetailCard: React.FC<PetDetailCardProps> = ({ pet, onClose }) => {
             };
 
             await set(newMatchRef, matchData);
+
+            // Eşleşme isteği emaili gönder
+            try {
+                // Kullanıcının aktif petini al
+                const userLocationRef = dbRef(db, `userLocations/${user.uid}`);
+                const userLocationSnapshot = await get(userLocationRef);
+                let activePetId = '';
+
+                if (userLocationSnapshot.exists()) {
+                    const locationData = userLocationSnapshot.val();
+                    activePetId = locationData.activePetId || '';
+                }
+
+                // Eğer aktif pet yoksa, kullanıcının ilk petini al
+                if (!activePetId) {
+                    const userPetsRef = dbRef(db, `pets/${user.uid}`);
+                    const userPetsSnapshot = await get(userPetsRef);
+                    if (userPetsSnapshot.exists()) {
+                        const pets = userPetsSnapshot.val();
+                        const petIds = Object.keys(pets);
+                        if (petIds.length > 0) {
+                            activePetId = petIds[0];
+                        }
+                    }
+                }
+
+                if (activePetId) {
+                    await fetch('/api/send-match-request-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            targetPetId: pet.id,
+                            requesterUserId: user.uid,
+                            ownerUserId: pet.ownerId,
+                            requesterPetId: activePetId
+                        }),
+                    });
+                    console.log('Eşleşme isteği emaili gönderildi (PetDetailCard)');
+                }
+            } catch (emailError) {
+                console.error('Eşleşme isteği emaili gönderilirken hata (PetDetailCard):', emailError);
+                // Email hatası kullanıcı deneyimini etkilemez
+            }
+
             setShowFriendRequest(true);
         } catch (error) {
             console.error('Eşleşme isteği gönderilirken hata oluştu:', error);

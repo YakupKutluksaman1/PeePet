@@ -292,6 +292,25 @@ const MatchesPage = () => {
                         return m;
                     }));
 
+                    // Eşleşme kabul edildi emaili gönder
+                    try {
+                        await fetch('/api/send-match-accepted-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                matchId: matchId,
+                                requesterUserId: match.senderId,
+                                accepterUserId: user?.uid
+                            }),
+                        });
+                        console.log('Eşleşme kabul edildi emaili gönderildi');
+                    } catch (emailError) {
+                        console.error('Eşleşme kabul edildi emaili gönderilirken hata:', emailError);
+                        // Email hatası kullanıcı deneyimini etkilemez
+                    }
+
                     // Kullanıcıya bildirim göster
                     setToast({
                         show: true,

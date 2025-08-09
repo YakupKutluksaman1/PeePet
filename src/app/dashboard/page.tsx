@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getDatabase, ref as dbRef, onValue, set, push, get, remove } from 'firebase/database';
+import { getDatabase, ref as dbRef, onValue, set, push, get, remove, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import { Pet, UserPets } from '@/types/pet';
@@ -126,6 +126,9 @@ export default function Dashboard() {
     const [userListingsCount, setUserListingsCount] = useState(0);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    // Takipçi ve takip edilen sayısı için state
+    const [petFollowersCount, setPetFollowersCount] = useState(0);
+    const [petFollowingCount, setPetFollowingCount] = useState(0);
 
     // Okunmamış ve yeni mesajları hesapla
     const unreadMessages = conversations.reduce((count, conversation) => {
@@ -601,6 +604,24 @@ export default function Dashboard() {
                 }
             }));
 
+            // --- EK: İlgili post'ların petPhoto alanını güncelle ---
+            const postsRef = dbRef(db, 'posts');
+            // Tüm post'ları çek
+            const snapshot = await get(postsRef);
+            if (snapshot.exists()) {
+                const postsData = snapshot.val();
+                const updates: any = {};
+                Object.entries(postsData).forEach(([postId, post]: any) => {
+                    if (post.petId === selectedPetId && post.userId === user.uid) {
+                        updates[`/posts/${postId}/petPhoto`] = photoURL;
+                    }
+                });
+                if (Object.keys(updates).length > 0) {
+                    await update(dbRef(db), updates);
+                }
+            }
+            // --- SON EK ---
+
             toast.success('Profil fotoğrafı başarıyla güncellendi!');
         } catch (error) {
             console.error('Profil fotoğrafı güncelleme hatası:', error);
@@ -701,6 +722,31 @@ export default function Dashboard() {
             setDeleting(false);
         }
     };
+
+    // Aktif petin takipçi ve takip edilen sayısını çek
+    useEffect(() => {
+        if (!activePet || !user) {
+            setPetFollowersCount(0);
+            setPetFollowingCount(0);
+            return;
+        }
+        const db = getDatabase();
+        // Takipçi sayısı
+        const followersRef = dbRef(db, `petFollowers/${activePet.id}`);
+        const offFollowers = onValue(followersRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const count = Object.values(data).filter((f: any) => f.status === 'approved').length;
+            setPetFollowersCount(count);
+        });
+        // Takip edilen sayısı
+        const followingRef = dbRef(db, `userFollows/${user.uid}`);
+        const offFollowing = onValue(followingRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const count = Object.values(data).filter(Boolean).length;
+            setPetFollowingCount(count);
+        });
+        return () => { offFollowers(); offFollowing(); };
+    }, [activePet, user]);
 
     if (authLoading || isLoading) {
         return (
@@ -1055,6 +1101,25 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Keşfet */}
+                                <div
+                                    onClick={() => router.push('/explore')}
+                                    className="group relative bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl p-4 cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden ring-2 ring-blue-200 hover:ring-blue-400 hover:-translate-y-1"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="relative z-10 flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m11 0l-4.553 2.276A2 2 0 0112 14.618V19a2 2 0 002 2h6a2 2 0 002-2v-4.382a2 2 0 00-.447-1.342L15 10z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-medium text-blue-900 group-hover:text-blue-950 transition-colors">Keşfet</h4>
+                                            <p className="text-xs text-blue-800">Gönderileri keşfet</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Son Aktiviteler */}
@@ -1257,16 +1322,20 @@ export default function Dashboard() {
                                         <div className="space-y-3">
                                             <div className="grid grid-cols-3 gap-3">
                                                 <div className="bg-green-50 rounded-xl p-3 text-center transition-all duration-300 hover:bg-green-100 hover:shadow-lg hover:-translate-y-1">
-                                                    <p className="text-2xl font-semibold text-green-600">🧸</p>
-                                                    <p className="text-xs text-green-600">Yakında</p>
+                                                    <p className="text-2xl font-semibold text-green-600">{petFollowersCount}</p>
+                                                    <p className="text-xs text-green-600">Takipçi</p>
                                                 </div>
                                                 <div className="bg-yellow-50 rounded-xl p-3 text-center transition-all duration-300 hover:bg-yellow-100 hover:shadow-lg hover:-translate-y-1">
-                                                    <p className="text-2xl font-semibold text-yellow-600">🧸</p>
-                                                    <p className="text-xs text-yellow-600">Yakında</p>
+                                                    <p className="text-2xl font-semibold text-yellow-600">{petFollowingCount}</p>
+                                                    <p className="text-xs text-yellow-600">Takip Edilen</p>
                                                 </div>
-                                                <div className="bg-blue-50 rounded-xl p-3 text-center transition-all duration-300 hover:bg-blue-100 hover:shadow-lg hover:-translate-y-1">
+                                                <div
+                                                    className="bg-blue-50 rounded-xl p-3 text-center transition-all duration-300 hover:bg-blue-100 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+                                                    onClick={() => activePet && router.push(`/pet/${activePet.id}`)}
+                                                    title="Profili Gör"
+                                                >
                                                     <p className="text-2xl font-semibold text-blue-600">🧸</p>
-                                                    <p className="text-xs text-blue-600">Yakında</p>
+                                                    <p className="text-xs text-blue-600">Profil</p>
                                                 </div>
                                             </div>
                                             <button

@@ -414,7 +414,19 @@ const MatchPage = () => {
 
     // Eşleştirme isteği gönder
     const requestMatch = async (targetPet: NearbyPet) => {
+        console.log('🐾 Eşleşme isteği gönderme kontrolü:', {
+            user: !!user,
+            selectedUserPetId,
+            activePet: !!activePet,
+            targetPet: targetPet.name
+        });
+
         if (!user || !selectedUserPetId || !activePet) {
+            console.error('❌ Eşleşme isteği gönderilemedi:', {
+                user: !!user,
+                selectedUserPetId,
+                activePet: !!activePet
+            });
             alert('Eşleşme isteği göndermek için lütfen giriş yapın ve bir evcil hayvan seçin.');
             return;
         }
@@ -444,6 +456,26 @@ const MatchPage = () => {
                 createdAt: new Date().toISOString(),
                 timestamp: new Date().toISOString()
             });
+
+            // Eşleşme isteği emaili gönder
+            try {
+                await fetch('/api/send-match-request-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        targetPetId: targetPet.id,
+                        requesterUserId: user.uid,
+                        ownerUserId: targetPet.ownerId,
+                        requesterPetId: selectedUserPetId
+                    }),
+                });
+                console.log('Eşleşme isteği emaili gönderildi');
+            } catch (emailError) {
+                console.error('Eşleşme isteği emaili gönderilirken hata:', emailError);
+                // Email hatası kullanıcı deneyimini etkilemez
+            }
 
             alert(`${targetPet.name} ile eşleşme isteği gönderildi!`);
         } catch (error) {
